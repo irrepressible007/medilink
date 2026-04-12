@@ -147,28 +147,10 @@ router.post('/admin/login', async (req, res) => {
   }
 })
 
-// ─── Doctor signup (admin-only) ───
+// ─── Doctor signup (Public) ───
 router.post('/doctor/signup', async (req, res) => {
   try {
-    // Verify the caller is an admin
-    const authHeader = req.headers.authorization
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return res.status(401).json({ message: 'Authentication required' })
-    }
-
-    const token = authHeader.split(' ')[1]
-    let decoded
-    try {
-      decoded = jwt.verify(token, JWT_SECRET)
-    } catch {
-      return res.status(401).json({ message: 'Invalid or expired token' })
-    }
-
-    if (decoded.role !== 'admin') {
-      return res.status(403).json({ message: 'Only admins can register doctors' })
-    }
-
-    const { fullName, email, password } = req.body
+    const { fullName, email, password, specialty } = req.body
 
     if (!fullName || !email || !password) {
       return res.status(400).json({ message: 'All fields are required' })
@@ -190,6 +172,7 @@ router.post('/doctor/signup', async (req, res) => {
         email,
         passwordHash,
         role: 'doctor',
+        specialty: specialty || 'General Physician',
       },
     })
 

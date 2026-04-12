@@ -86,7 +86,10 @@ function DoctorLoginPage() {
           </button>
         </form>
 
-        <p className="auth-footer">
+        <p className="auth-footer" style={{ borderBottom: '1px solid var(--border)', paddingBottom: '1rem', marginBottom: '1rem' }}>
+          Don't have an account? <Link to="/doctor/signup">Create one</Link>
+        </p>
+        <p className="auth-footer" style={{ margin: 0 }}>
           Patient? <Link to="/login">Go to Patient Login</Link>
         </p>
       </div>

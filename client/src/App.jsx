@@ -14,6 +14,7 @@ import ProfilePage from './pages/ProfilePage.jsx'
 import AdminLoginPage from './pages/AdminLoginPage.jsx'
 import AdminDashboard from './pages/AdminDashboard.jsx'
 import DoctorLoginPage from './pages/DoctorLoginPage.jsx'
+import DoctorSignupPage from './pages/DoctorSignupPage.jsx'
 import DoctorDashboard from './pages/DoctorDashboard.jsx'
 
 function App() {
@@ -37,6 +38,7 @@ function App() {
 
       {/* Doctor */}
       <Route path="/doctor" element={<DoctorLoginPage />} />
+      <Route path="/doctor/signup" element={<DoctorSignupPage />} />
       <Route path="/doctor/dashboard" element={<DoctorDashboard />} />
 
       <Route path="*" element={<Navigate to="/login" replace />} />
