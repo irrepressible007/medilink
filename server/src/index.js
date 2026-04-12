@@ -66,6 +66,22 @@ io.on('connection', (socket) => {
   socket.on('disconnect', () => {
     // handled automatically
   })
+
+  // WebRTC Telemedicine Signaling
+  socket.on('call_user', (data) => {
+    // data = { userToCall, signalData, from, name }
+    io.to(data.userToCall).emit('call_user', { signal: data.signalData, from: data.from, name: data.name })
+  })
+
+  socket.on('answer_call', (data) => {
+    // data = { to, signal }
+    io.to(data.to).emit('call_accepted', data.signal)
+  })
+
+  socket.on('ice_candidate', (data) => {
+    // data = { to, candidate }
+    io.to(data.to).emit('ice_candidate', data.candidate)
+  })
 })
 
 httpServer.listen(PORT, () => {
