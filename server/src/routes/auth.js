@@ -114,7 +114,14 @@ router.post('/admin/login', async (req, res) => {
       return res.status(400).json({ message: 'Username and password are required' })
     }
 
-    if (username !== 'admin' || password !== 'admin') {
+    const ADMIN_USER = process.env.ADMIN_USERNAME
+    const ADMIN_PASS = process.env.ADMIN_PASSWORD
+
+    if (!ADMIN_USER || !ADMIN_PASS) {
+      return res.status(500).json({ message: 'Admin credentials not configured on server.' })
+    }
+
+    if (username !== ADMIN_USER || password !== ADMIN_PASS) {
       return res.status(401).json({ message: 'Invalid admin credentials' })
     }
 

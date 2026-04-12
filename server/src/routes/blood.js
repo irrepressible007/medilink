@@ -28,8 +28,8 @@ router.get('/donors', async (req, res) => {
   }
 })
 
-// POST /api/blood/donors — register as a donor (public)
-router.post('/donors', async (req, res) => {
+// POST /api/blood/donors — register as a donor (requires login)
+router.post('/donors', authenticate, async (req, res) => {
   try {
     const { fullName, bloodGroup, phone, city, lastDonated } = req.body
 
@@ -75,8 +75,8 @@ router.get('/requests', async (req, res) => {
   }
 })
 
-// POST /api/blood/requests — post a blood request (public)
-router.post('/requests', async (req, res) => {
+// POST /api/blood/requests — post a blood request (requires login)
+router.post('/requests', authenticate, async (req, res) => {
   try {
     const { patientName, bloodGroup, hospital, city, phone, urgency } = req.body
 

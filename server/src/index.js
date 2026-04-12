@@ -1,6 +1,8 @@
 import express from 'express'
 import cors from 'cors'
+import rateLimit from 'express-rate-limit'
 import dotenv from 'dotenv'
+import jwt from 'jsonwebtoken'
 import authRouter from './routes/auth.js'
 import appointmentsRouter from './routes/appointments.js'
 import doctorsRouter from './routes/doctors.js'
@@ -19,28 +21,54 @@ import { Server } from 'socket.io'
 
 dotenv.config()
 
+const JWT_SECRET = process.env.JWT_SECRET
+if (!JWT_SECRET) throw new Error('FATAL: JWT_SECRET environment variable is not set!')
+
+const ALLOWED_ORIGINS = [
+  'http://localhost:5173',
+  'http://localhost:3000',
+  process.env.CLIENT_URL, // set on Render: your Vercel URL
+].filter(Boolean)
+
+const corsOptions = {
+  origin: (origin, cb) => {
+    // allow non-browser tools (Postman) and whitelisted origins
+    if (!origin || ALLOWED_ORIGINS.includes(origin)) return cb(null, true)
+    cb(new Error(`CORS: Origin ${origin} not allowed`))
+  },
+  credentials: true,
+}
+
 const app = express()
 const httpServer = createServer(app)
-const io = new Server(httpServer, {
-  cors: {
-    origin: true,
-    credentials: true,
-  }
-})
+const io = new Server(httpServer, { cors: corsOptions })
 const PORT = process.env.PORT || 5000
 
-app.use(
-  cors({
-    origin: true, // allow any origin in development
-    credentials: true,
-  }),
-)
-app.use(express.json())
+// ── Rate Limiters ──
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 20,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { message: 'Too many login attempts. Please wait 15 minutes.' },
+})
+const aiLimiter = rateLimit({
+  windowMs: 60 * 1000, // 1 minute
+  max: 15,
+  message: { message: 'AI rate limit exceeded. Please wait a moment.' },
+})
+
+app.use(cors(corsOptions))
+app.use(express.json({ limit: '16kb' }))
 
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok' })
 })
 
+app.use('/api/auth/login', authLimiter)
+app.use('/api/auth/doctor/login', authLimiter)
+app.use('/api/auth/admin/login', authLimiter)
+app.use('/api/ai', aiLimiter)
 app.use('/api/auth', authRouter)
 app.use('/api/appointments', appointmentsRouter)
 app.use('/api/doctors', doctorsRouter)
@@ -54,11 +82,24 @@ app.use('/api/blood', bloodRouter)
 app.use('/api/ai', aiRouter)
 app.use('/api/profile', profileRouter)
 
+// ── Socket.io JWT Authentication Middleware ──
+io.use((socket, next) => {
+  const token = socket.handshake.auth?.token
+  if (!token) return next(new Error('Socket: Authentication required'))
+  try {
+    const decoded = jwt.verify(token, JWT_SECRET)
+    socket.userId = decoded.userId
+    socket.userRole = decoded.role
+    next()
+  } catch {
+    next(new Error('Socket: Invalid or expired token'))
+  }
+})
+
 // Socket.io Real-time Messaging setup
 io.on('connection', (socket) => {
-  socket.on('join_chat', (userId) => {
-    socket.join(userId)
-  })
+  // Automatically join the user's own private room using verified JWT identity
+  socket.join(socket.userId)
 
   socket.on('send_message', (data) => {
     // data = { receiverId, messageData }

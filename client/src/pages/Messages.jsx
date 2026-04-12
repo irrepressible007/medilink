@@ -39,7 +39,7 @@ function Messages() {
   useEffect(() => {
     fetchConversations()
     const socketUrl = API_BASE_URL.replace('/api', '')
-    const sock = io(socketUrl)
+    const sock = io(socketUrl, { auth: { token } }) // ← secure: JWT in handshake
     setSocket(sock)
 
     if (currentUser?.id) {

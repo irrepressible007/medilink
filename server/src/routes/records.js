@@ -1,7 +1,7 @@
 import express from 'express'
 import { PrismaClient } from '../../generated/prisma/index.js'
 import { authenticate } from '../middleware/authMiddleware.js'
-import { upload } from '../services/upload.js'
+import { upload, uploadToCloudinary } from '../services/upload.js'
 
 const prisma = new PrismaClient()
 const router = express.Router()
@@ -11,28 +11,22 @@ router.use(authenticate)
 // ─── GET /api/records ─── Get records for the logged-in patient
 router.get('/', async (req, res) => {
   try {
-    // Both patients and doctors might hit this, but patients should only see their own.
     if (req.user.role === 'doctor') {
       return res.status(403).json({ message: 'Use doctor-specific routes to view patient records' })
     }
-
     const records = await prisma.medicalRecord.findMany({
       where: { patientId: req.user.userId },
-      include: { 
-        appointment: { 
-          select: { doctorOrService: true, appointmentDate: true } 
-        } 
-      },
+      include: { appointment: { select: { doctorOrService: true, appointmentDate: true } } },
       orderBy: { createdAt: 'desc' }
     })
     return res.json({ records })
   } catch (error) {
     console.error('List records error:', error)
-    return res.status(500).json({ message: error?.message || 'Internal server error' })
+    return res.status(500).json({ message: 'Something went wrong. Please try again.' })
   }
 })
 
-// ─── POST /api/records ─── Patient uploads a record or Doctor adds a note
+// ─── POST /api/records ─── Upload a medical record
 router.post('/', upload.single('document'), async (req, res) => {
   try {
     const { title, description, recordType, appointmentId, targetPatientId } = req.body
@@ -41,34 +35,37 @@ router.post('/', upload.single('document'), async (req, res) => {
       return res.status(400).json({ message: 'Missing required fields: title, recordType' })
     }
 
-    // Determine the patient ID to attach the record to
     let patientId = req.user.userId
-    
-    // If it's a doctor adding a record
+
     if (req.user.role === 'doctor') {
-       if (!targetPatientId) {
-         return res.status(400).json({ message: 'Doctors must specify a targetPatientId' })
-       }
-       patientId = targetPatientId
+      if (!targetPatientId) {
+        return res.status(400).json({ message: 'Doctors must specify a targetPatientId' })
+      }
+      // IDOR fix: verify the patient has an appointment with this doctor
+      const linked = await prisma.appointment.findFirst({
+        where: { userId: targetPatientId, doctorOrService: { contains: req.user.email } }
+      })
+      if (!linked) {
+        return res.status(403).json({ message: 'You can only add records for your own patients.' })
+      }
+      patientId = targetPatientId
     }
 
-    const fileUrl = req.file ? req.file.path : null
+    // Upload file to Cloudinary if provided
+    let fileUrl = null
+    if (req.file) {
+      const result = await uploadToCloudinary(req.file.buffer, req.file.mimetype)
+      fileUrl = result.secure_url
+    }
 
     const record = await prisma.medicalRecord.create({
-      data: {
-        title,
-        description,
-        recordType,
-        fileUrl, 
-        appointmentId: appointmentId || null,
-        patientId,
-      }
+      data: { title, description, recordType, fileUrl, appointmentId: appointmentId || null, patientId }
     })
 
     return res.status(201).json({ message: 'Medical record added successfully', record })
   } catch (error) {
     console.error('Create record error:', error)
-    return res.status(500).json({ message: error?.message || 'Internal server error' })
+    return res.status(500).json({ message: error.message?.includes('allowed') ? error.message : 'Something went wrong.' })
   }
 })
 

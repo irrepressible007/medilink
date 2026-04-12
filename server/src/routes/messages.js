@@ -1,7 +1,7 @@
 import express from 'express'
 import { PrismaClient } from '../../generated/prisma/index.js'
 import { authenticate } from '../middleware/authMiddleware.js'
-import { upload } from '../services/upload.js'
+import { upload, uploadToCloudinary } from '../services/upload.js'
 
 const prisma = new PrismaClient()
 const router = express.Router()
@@ -19,10 +19,7 @@ router.get('/conversations', async (req, res) => {
       orderBy: { updatedAt: 'desc' }
     })
 
-    // Fetch the profile details of the other participant
     const otherUserIds = conversations.map(c => isDoctor ? c.patientId : c.doctorId)
-    
-    // De-duplicate user IDs
     const uniqueIds = [...new Set(otherUserIds)]
     const otherUsers = await prisma.user.findMany({
       where: { id: { in: uniqueIds } },
@@ -32,7 +29,6 @@ router.get('/conversations', async (req, res) => {
     const userMap = {}
     otherUsers.forEach(u => { userMap[u.id] = u })
 
-    // Attach user data to conversation objects
     const enrichedConvos = conversations.map(c => ({
       ...c,
       otherUser: userMap[isDoctor ? c.patientId : c.doctorId]
@@ -41,14 +37,13 @@ router.get('/conversations', async (req, res) => {
     return res.json({ conversations: enrichedConvos })
   } catch (error) {
     console.error('List conversations error:', error)
-    return res.status(500).json({ message: error?.message || 'Internal server error' })
+    return res.status(500).json({ message: 'Something went wrong. Please try again.' })
   }
 })
 
 // ─── GET /api/messages/:conversationId ───
 router.get('/:conversationId', async (req, res) => {
   try {
-    // Validate participation
     const conversation = await prisma.conversation.findUnique({
       where: { id: req.params.conversationId }
     })
@@ -66,7 +61,7 @@ router.get('/:conversationId', async (req, res) => {
     return res.json({ messages })
   } catch (error) {
     console.error('List messages error:', error)
-    return res.status(500).json({ message: error?.message || 'Internal server error' })
+    return res.status(500).json({ message: 'Something went wrong. Please try again.' })
   }
 })
 
@@ -80,22 +75,20 @@ router.post('/', upload.single('attachment'), async (req, res) => {
 
     const isDoctor = req.user.role === 'doctor'
     const patientId = isDoctor ? receiverId : req.user.userId
-    const doctorId = isDoctor ? req.user.userId : receiverId
+    const doctorId  = isDoctor ? req.user.userId : receiverId
 
-    // Does conversation exist?
-    let conversation = await prisma.conversation.findFirst({
-      where: { patientId, doctorId }
-    })
-
+    let conversation = await prisma.conversation.findFirst({ where: { patientId, doctorId } })
     if (!conversation) {
-      conversation = await prisma.conversation.create({
-        data: { patientId, doctorId }
-      })
+      conversation = await prisma.conversation.create({ data: { patientId, doctorId } })
     }
 
-    const fileUrl = req.file ? req.file.path : null
+    // Upload attachment to Cloudinary if provided
+    let fileUrl = null
+    if (req.file) {
+      const result = await uploadToCloudinary(req.file.buffer, req.file.mimetype, 'medilink_chat')
+      fileUrl = result.secure_url
+    }
 
-    // Save message
     const message = await prisma.message.create({
       data: {
         content: content || 'File attachment',
@@ -106,16 +99,11 @@ router.post('/', upload.single('attachment'), async (req, res) => {
       }
     })
 
-    // Update conversation timestamp
-    await prisma.conversation.update({
-      where: { id: conversation.id },
-      data: { updatedAt: new Date() }
-    })
-
+    await prisma.conversation.update({ where: { id: conversation.id }, data: { updatedAt: new Date() } })
     return res.status(201).json({ message, conversationId: conversation.id })
   } catch (error) {
     console.error('Send message error:', error)
-    return res.status(500).json({ message: error?.message || 'Internal server error' })
+    return res.status(500).json({ message: error.message?.includes('allowed') ? error.message : 'Something went wrong.' })
   }
 })
 
