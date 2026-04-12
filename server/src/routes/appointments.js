@@ -1,3 +1,4 @@
+import logger from '../utils/logger.js'
 import express from 'express'
 import { PrismaClient } from '../../generated/prisma/index.js'
 import { authenticate } from '../middleware/authMiddleware.js'
@@ -70,12 +71,12 @@ router.post('/', async (req, res) => {
           userId: req.user.userId,
           appointmentId: appointment.id,
         },
-      }).catch((err) => console.error('Notification log error:', err))
-    }).catch((err) => console.error('Confirmation notification error:', err))
+      }).catch((err) => logger.error('Notification log error:', err))
+    }).catch((err) => logger.error('Confirmation notification error:', err))
 
     return res.status(201).json({ message: 'Appointment created', appointment })
   } catch (error) {
-    console.error('Create appointment error:', error)
+    logger.error('Create appointment error:', error)
     return res.status(500).json({ message: error?.message || 'Internal server error' })
   }
 })
@@ -90,7 +91,7 @@ router.get('/', async (req, res) => {
 
     return res.json({ appointments })
   } catch (error) {
-    console.error('List appointments error:', error)
+    logger.error('List appointments error:', error)
     return res.status(500).json({ message: error?.message || 'Internal server error' })
   }
 })
@@ -120,7 +121,7 @@ router.get('/doctor/all', async (req, res) => {
 
     return res.json({ appointments })
   } catch (error) {
-    console.error('Doctor list appointments error:', error)
+    logger.error('Doctor list appointments error:', error)
     return res.status(500).json({ message: error?.message || 'Internal server error' })
   }
 })
@@ -143,7 +144,7 @@ router.get('/:id', async (req, res) => {
 
     return res.json({ appointment })
   } catch (error) {
-    console.error('Get appointment error:', error)
+    logger.error('Get appointment error:', error)
     return res.status(500).json({ message: error?.message || 'Internal server error' })
   }
 })
@@ -194,7 +195,7 @@ router.put('/:id', async (req, res) => {
 
     return res.json({ message: 'Appointment updated', appointment })
   } catch (error) {
-    console.error('Update appointment error:', error)
+    logger.error('Update appointment error:', error)
     return res.status(500).json({ message: error?.message || 'Internal server error' })
   }
 })
@@ -220,7 +221,7 @@ router.delete('/:id', async (req, res) => {
 
     return res.json({ message: 'Appointment deleted' })
   } catch (error) {
-    console.error('Delete appointment error:', error)
+    logger.error('Delete appointment error:', error)
     return res.status(500).json({ message: error?.message || 'Internal server error' })
   }
 })
@@ -267,11 +268,11 @@ router.patch('/doctor/:id/accept', async (req, res) => {
           <div style="background:#f9fafb;padding:16px;text-align:center;font-size:12px;color:#9ca3af;">&copy; MediLink Healthcare</div>
         </div>
       `,
-    }).catch((err) => console.error('Accept notification error:', err))
+    }).catch((err) => logger.error('Accept notification error:', err))
 
     return res.json({ message: 'Appointment confirmed', appointment })
   } catch (error) {
-    console.error('Accept appointment error:', error)
+    logger.error('Accept appointment error:', error)
     return res.status(500).json({ message: error?.message || 'Internal server error' })
   }
 })
@@ -330,11 +331,11 @@ router.patch('/doctor/:id/reschedule', async (req, res) => {
           <div style="background:#f9fafb;padding:16px;text-align:center;font-size:12px;color:#9ca3af;">&copy; MediLink Healthcare</div>
         </div>
       `,
-    }).catch((err) => console.error('Reschedule notification error:', err))
+    }).catch((err) => logger.error('Reschedule notification error:', err))
 
     return res.json({ message: 'Appointment rescheduled', appointment })
   } catch (error) {
-    console.error('Reschedule appointment error:', error)
+    logger.error('Reschedule appointment error:', error)
     return res.status(500).json({ message: error?.message || 'Internal server error' })
   }
 })

@@ -1,3 +1,4 @@
+import logger from '../utils/logger.js'
 import nodemailer from 'nodemailer'
 import dotenv from 'dotenv'
 
@@ -15,7 +16,7 @@ const transporter = nodemailer.createTransport({
 // Verify connection on startup
 transporter.verify()
   .then(() => console.log(`📧 Gmail connected as ${process.env.SMTP_USER}`))
-  .catch((err) => console.error('📧 Gmail connection failed:', err.message))
+  .catch((err) => logger.error('📧 Gmail connection failed:', err.message))
 
 /**
  * Send an email via Gmail.
@@ -31,7 +32,7 @@ export async function sendEmail({ to, subject, html }) {
     console.log(`📧 Email sent to ${to}: ${info.messageId}`)
     return { success: true, messageId: info.messageId }
   } catch (error) {
-    console.error(`📧 Email failed to ${to}:`, error.message)
+    logger.error(`📧 Email failed to ${to}:`, error.message)
     return { success: false, error: error.message }
   }
 }

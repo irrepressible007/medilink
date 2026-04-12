@@ -1,3 +1,4 @@
+import logger from '../utils/logger.js'
 import express from 'express'
 import { PrismaClient } from '../../generated/prisma/index.js'
 import { authenticate } from '../middleware/authMiddleware.js'
@@ -30,7 +31,7 @@ router.get('/', async (req, res) => {
     if (!user) return res.status(404).json({ message: 'User not found' })
     return res.json({ user })
   } catch (error) {
-    console.error('Get profile error:', error)
+    logger.error('Get profile error:', error)
     return res.status(500).json({ message: error?.message || 'Internal server error' })
   }
 })
@@ -59,7 +60,7 @@ router.put('/', async (req, res) => {
 
     return res.json({ message: 'Profile updated successfully', user: updated })
   } catch (error) {
-    console.error('Update profile error:', error)
+    logger.error('Update profile error:', error)
     return res.status(500).json({ message: error?.message || 'Internal server error' })
   }
 })
@@ -87,7 +88,7 @@ router.get('/admin/stats', async (req, res) => {
 
     return res.json({ stats: { patients, doctors, appointments, emergencies, bloodDonors, bloodRequests }, recentPatients })
   } catch (error) {
-    console.error('Admin stats error:', error)
+    logger.error('Admin stats error:', error)
     return res.status(500).json({ message: error?.message || 'Internal server error' })
   }
 })

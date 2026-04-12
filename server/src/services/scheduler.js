@@ -1,3 +1,4 @@
+import logger from '../utils/logger.js'
 import cron from 'node-cron'
 import { PrismaClient } from '../../generated/prisma/index.js'
 import { sendNotification } from './notificationService.js'
@@ -65,7 +66,7 @@ export function startScheduler() {
         console.log(`⏰ Sent ${appointments.length} appointment reminder(s)`)
       }
     } catch (error) {
-      console.error('⏰ Reminder job error:', error)
+      logger.error('⏰ Reminder job error:', error)
     }
   })
 
@@ -118,7 +119,7 @@ export function startScheduler() {
         }
       }
     } catch (error) {
-      console.error('⏰ Medication alert job error:', error)
+      logger.error('⏰ Medication alert job error:', error)
     }
   })
 }

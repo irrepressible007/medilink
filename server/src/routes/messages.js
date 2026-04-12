@@ -1,3 +1,4 @@
+import logger from '../utils/logger.js'
 import express from 'express'
 import { PrismaClient } from '../../generated/prisma/index.js'
 import { authenticate } from '../middleware/authMiddleware.js'
@@ -36,7 +37,7 @@ router.get('/conversations', async (req, res) => {
 
     return res.json({ conversations: enrichedConvos })
   } catch (error) {
-    console.error('List conversations error:', error)
+    logger.error('List conversations error:', error)
     return res.status(500).json({ message: 'Something went wrong. Please try again.' })
   }
 })
@@ -60,7 +61,7 @@ router.get('/:conversationId', async (req, res) => {
 
     return res.json({ messages })
   } catch (error) {
-    console.error('List messages error:', error)
+    logger.error('List messages error:', error)
     return res.status(500).json({ message: 'Something went wrong. Please try again.' })
   }
 })
@@ -102,7 +103,7 @@ router.post('/', upload.single('attachment'), async (req, res) => {
     await prisma.conversation.update({ where: { id: conversation.id }, data: { updatedAt: new Date() } })
     return res.status(201).json({ message, conversationId: conversation.id })
   } catch (error) {
-    console.error('Send message error:', error)
+    logger.error('Send message error:', error)
     return res.status(500).json({ message: error.message?.includes('allowed') ? error.message : 'Something went wrong.' })
   }
 })

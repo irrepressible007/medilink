@@ -1,3 +1,4 @@
+import logger from '../utils/logger.js'
 import express from 'express'
 import { PrismaClient } from '../../generated/prisma/index.js'
 
@@ -34,7 +35,7 @@ router.get('/', async (req, res) => {
 
     return res.json({ doctors })
   } catch (error) {
-    console.error('List doctors error:', error)
+    logger.error('List doctors error:', error)
     return res.status(500).json({ message: error?.message || 'Internal server error' })
   }
 })

@@ -3,6 +3,8 @@ import cors from 'cors'
 import rateLimit from 'express-rate-limit'
 import dotenv from 'dotenv'
 import jwt from 'jsonwebtoken'
+import logger from './utils/logger.js'
+import { errorHandler, notFound } from './middleware/errorHandler.js'
 import authRouter from './routes/auth.js'
 import appointmentsRouter from './routes/appointments.js'
 import doctorsRouter from './routes/doctors.js'
@@ -128,8 +130,12 @@ io.on('connection', (socket) => {
 })
 
 httpServer.listen(PORT, () => {
-  // eslint-disable-next-line no-console
-  console.log(`Server listening on http://localhost:${PORT}`)
+  logger.info(`🚀 Server listening on http://localhost:${PORT}`)
   startScheduler()
 })
+
+// ── Global error handlers — must be LAST ──
+app.use(notFound)
+app.use(errorHandler)
+
 

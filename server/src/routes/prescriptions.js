@@ -1,3 +1,4 @@
+import logger from '../utils/logger.js'
 import express from 'express'
 import { PrismaClient } from '../../generated/prisma/index.js'
 import { authenticate } from '../middleware/authMiddleware.js'
@@ -68,11 +69,11 @@ router.post('/', async (req, res) => {
       email: appointment.email,
       subject,
       html
-    }).catch(err => console.error('Prescription notification error:', err))
+    }).catch(err => logger.error('Prescription notification error:', err))
 
     return res.status(201).json({ message: 'Prescription generated successfully', prescription })
   } catch (error) {
-    console.error('Create prescription error:', error)
+    logger.error('Create prescription error:', error)
     return res.status(500).json({ message: error?.message || 'Internal server error' })
   }
 })
@@ -88,7 +89,7 @@ router.get('/patient', async (req, res) => {
 
     return res.json({ prescriptions })
   } catch (error) {
-    console.error('List prescriptions error:', error)
+    logger.error('List prescriptions error:', error)
     return res.status(500).json({ message: error?.message || 'Internal server error' })
   }
 })
@@ -103,7 +104,7 @@ router.get('/appointment/:id', async (req, res) => {
 
     return res.json({ prescriptions })
   } catch (error) {
-    console.error('List appointment prescriptions error:', error)
+    logger.error('List appointment prescriptions error:', error)
     return res.status(500).json({ message: error?.message || 'Internal server error' })
   }
 })

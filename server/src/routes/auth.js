@@ -1,3 +1,4 @@
+import logger from '../utils/logger.js'
 import express from 'express'
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
@@ -52,7 +53,7 @@ router.post('/signup', async (req, res) => {
     })
   } catch (error) {
     // eslint-disable-next-line no-console
-    console.error('Signup error:', error)
+    logger.error('Signup error:', error)
     return res
       .status(500)
       .json({ message: error?.message || 'Internal server error' })
@@ -98,7 +99,7 @@ router.post('/login', async (req, res) => {
     })
   } catch (error) {
     // eslint-disable-next-line no-console
-    console.error('Login error:', error)
+    logger.error('Login error:', error)
     return res
       .status(500)
       .json({ message: error?.message || 'Internal server error' })
@@ -141,7 +142,7 @@ router.post('/admin/login', async (req, res) => {
       },
     })
   } catch (error) {
-    console.error('Admin login error:', error)
+    logger.error('Admin login error:', error)
     return res.status(500).json({ message: error?.message || 'Internal server error' })
   }
 })
@@ -202,7 +203,7 @@ router.post('/doctor/signup', async (req, res) => {
       },
     })
   } catch (error) {
-    console.error('Doctor signup error:', error)
+    logger.error('Doctor signup error:', error)
     return res.status(500).json({ message: error?.message || 'Internal server error' })
   }
 })
@@ -246,7 +247,7 @@ router.post('/doctor/login', async (req, res) => {
       },
     })
   } catch (error) {
-    console.error('Doctor login error:', error)
+    logger.error('Doctor login error:', error)
     return res.status(500).json({ message: error?.message || 'Internal server error' })
   }
 })

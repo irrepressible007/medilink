@@ -1,3 +1,4 @@
+import logger from '../utils/logger.js'
 import express from 'express'
 import { PrismaClient } from '../../generated/prisma/index.js'
 import { authenticate } from '../middleware/authMiddleware.js'
@@ -30,7 +31,7 @@ router.post('/', async (req, res) => {
 
     return res.status(201).json({ message: 'Emergency SOS Dispatched successfully!', emergencyId: emergency.id })
   } catch (error) {
-    console.error('Create emergency error:', error)
+    logger.error('Create emergency error:', error)
     return res.status(500).json({ message: error?.message || 'Internal server error' })
   }
 })
@@ -49,7 +50,7 @@ router.get('/active', async (req, res) => {
 
     return res.json({ emergencies })
   } catch (error) {
-    console.error('List emergencies error:', error)
+    logger.error('List emergencies error:', error)
     return res.status(500).json({ message: error?.message || 'Internal server error' })
   }
 })

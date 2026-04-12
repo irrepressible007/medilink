@@ -1,3 +1,4 @@
+import logger from '../utils/logger.js'
 import express from 'express'
 import Groq from 'groq-sdk'
 import { authenticate } from '../middleware/authMiddleware.js'
@@ -49,7 +50,7 @@ router.post('/symptoms', async (req, res) => {
 
     return res.json({ response: aiMessage })
   } catch (error) {
-    console.error('Groq AI Error:', error)
+    logger.error('Groq AI Error:', error)
     return res.status(500).json({ error: 'Failed to process AI request.' })
   }
 })

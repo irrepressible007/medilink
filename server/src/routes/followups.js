@@ -1,3 +1,4 @@
+import logger from '../utils/logger.js'
 import express from 'express'
 import { PrismaClient } from '../../generated/prisma/index.js'
 import { authenticate } from '../middleware/authMiddleware.js'
@@ -58,13 +59,13 @@ router.post('/', async (req, res) => {
         })
 
         sendNotification({ email: doctor.email, subject, html })
-          .catch((err) => console.error('Follow-up doctor notification error:', err))
+          .catch((err) => logger.error('Follow-up doctor notification error:', err))
       }
     }
 
     return res.status(201).json({ message: 'Follow-up request submitted', followUp })
   } catch (error) {
-    console.error('Follow-up request error:', error)
+    logger.error('Follow-up request error:', error)
     return res.status(500).json({ message: error?.message || 'Internal server error' })
   }
 })
@@ -80,7 +81,7 @@ router.get('/', async (req, res) => {
 
     return res.json({ followUps })
   } catch (error) {
-    console.error('List follow-ups error:', error)
+    logger.error('List follow-ups error:', error)
     return res.status(500).json({ message: error?.message || 'Internal server error' })
   }
 })
@@ -114,7 +115,7 @@ router.get('/doctor', async (req, res) => {
 
     return res.json({ followUps })
   } catch (error) {
-    console.error('Doctor follow-ups error:', error)
+    logger.error('Doctor follow-ups error:', error)
     return res.status(500).json({ message: error?.message || 'Internal server error' })
   }
 })
@@ -136,11 +137,11 @@ router.patch('/:id/approve', async (req, res) => {
     })
 
     sendNotification({ email: followUp.patient.email, subject, html })
-      .catch((err) => console.error('Follow-up approval notification error:', err))
+      .catch((err) => logger.error('Follow-up approval notification error:', err))
 
     return res.json({ message: 'Follow-up approved', followUp })
   } catch (error) {
-    console.error('Approve follow-up error:', error)
+    logger.error('Approve follow-up error:', error)
     return res.status(500).json({ message: error?.message || 'Internal server error' })
   }
 })
@@ -156,7 +157,7 @@ router.patch('/:id/reject', async (req, res) => {
 
     return res.json({ message: 'Follow-up rejected', followUp })
   } catch (error) {
-    console.error('Reject follow-up error:', error)
+    logger.error('Reject follow-up error:', error)
     return res.status(500).json({ message: error?.message || 'Internal server error' })
   }
 })

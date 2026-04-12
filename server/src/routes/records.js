@@ -1,3 +1,4 @@
+import logger from '../utils/logger.js'
 import express from 'express'
 import { PrismaClient } from '../../generated/prisma/index.js'
 import { authenticate } from '../middleware/authMiddleware.js'
@@ -21,7 +22,7 @@ router.get('/', async (req, res) => {
     })
     return res.json({ records })
   } catch (error) {
-    console.error('List records error:', error)
+    logger.error('List records error:', error)
     return res.status(500).json({ message: 'Something went wrong. Please try again.' })
   }
 })
@@ -64,7 +65,7 @@ router.post('/', upload.single('document'), async (req, res) => {
 
     return res.status(201).json({ message: 'Medical record added successfully', record })
   } catch (error) {
-    console.error('Create record error:', error)
+    logger.error('Create record error:', error)
     return res.status(500).json({ message: error.message?.includes('allowed') ? error.message : 'Something went wrong.' })
   }
 })

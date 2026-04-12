@@ -6,4 +6,5 @@ node_modules
 dist
 build
 *.log
+logs/
 implementation_plan.md
