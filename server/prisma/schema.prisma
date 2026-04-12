@@ -22,6 +22,11 @@ model User {
   phone            String?
   role             String            @default("patient")
   specialty        String?           // Used for classifying doctors
+  dateOfBirth      String?
+  bloodGroup       String?
+  allergies        String?
+  emergencyContact String?
+  avatarUrl        String?
   createdAt        DateTime          @default(now())
   appointments     Appointment[]
   followUpRequests FollowUpRequest[]

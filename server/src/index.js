@@ -12,6 +12,7 @@ import emergencyRouter from './routes/emergency.js'
 import referralsRouter from './routes/referrals.js'
 import bloodRouter from './routes/blood.js'
 import aiRouter from './routes/ai.js'
+import profileRouter from './routes/profile.js'
 import { startScheduler } from './services/scheduler.js'
 import { createServer } from 'http'
 import { Server } from 'socket.io'
@@ -51,6 +52,7 @@ app.use('/api/emergency', emergencyRouter)
 app.use('/api/referrals', referralsRouter)
 app.use('/api/blood', bloodRouter)
 app.use('/api/ai', aiRouter)
+app.use('/api/profile', profileRouter)
 
 // Socket.io Real-time Messaging setup
 io.on('connection', (socket) => {

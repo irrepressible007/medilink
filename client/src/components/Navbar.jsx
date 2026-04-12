@@ -24,6 +24,7 @@ export function Navbar({ role = 'patient' }) {
               <Link to="/records" className="ml-navbar-link">Records</Link>
               <Link to="/messages" className="ml-navbar-link">Messages</Link>
               <Link to="/blood-bank" className="ml-navbar-link">Blood Bank</Link>
+              <Link to="/profile" className="ml-navbar-link">Profile</Link>
             </>
           )}
           {role === 'doctor' && (
@@ -66,9 +67,9 @@ export function Navbar({ role = 'patient' }) {
 const patientTabs = [
   { to: '/dashboard',            icon: '🏠', label: 'Home'     },
   { to: '/appointments',         icon: '📅', label: 'Book'     },
-  { to: '/consultation-history', icon: '📋', label: 'History'  },
-  { to: '/records',              icon: '📁', label: 'Records'  },
   { to: '/messages',             icon: '💬', label: 'Messages' },
+  { to: '/blood-bank',           icon: '🩸', label: 'Blood'    },
+  { to: '/profile',              icon: '👤', label: 'Profile'  },
 ]
 
 const doctorTabs = [
