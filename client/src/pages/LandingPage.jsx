@@ -28,6 +28,7 @@ export default function LandingPage() {
           <div className="landing-nav-links">
             <a href="#features">Features</a>
             <a href="#stats">Why Us</a>
+            <Link to="/doctor" style={{ fontWeight: 600, display: 'flex', alignItems: 'center', gap: '4px' }}>👨‍⚕️ <span style={{ color: 'var(--primary)' }}>For Doctors</span></Link>
           </div>
           <div className="landing-nav-cta">
             <Link to="/login" className="landing-btn-ghost">Sign In</Link>
@@ -130,9 +131,14 @@ export default function LandingPage() {
         <div className="landing-cta-inner">
           <h2>Ready to Take Control of Your Health?</h2>
           <p>Join thousands of patients who trust MediLink for their complete healthcare needs.</p>
-          <Link to="/signup" className="landing-cta-btn large">
-            Create Free Account →
-          </Link>
+          <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap', marginTop: '2rem' }}>
+            <Link to="/signup" className="landing-cta-btn large">
+              Create Patient Account →
+            </Link>
+            <Link to="/doctor/signup" className="landing-cta-btn large" style={{ background: 'linear-gradient(135deg, #1E40AF, #0057B7)' }}>
+              Register as Doctor 👨‍⚕️
+            </Link>
+          </div>
         </div>
       </section>
 

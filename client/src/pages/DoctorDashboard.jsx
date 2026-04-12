@@ -33,6 +33,16 @@ function DoctorDashboard() {
   const [referralData, setReferralData] = useState({ referredToDocId: '', notes: '' })
   const [referring, setReferring] = useState(false)
 
+  // EHR modal state
+  const [ehrModal, setEhrModal] = useState(null)
+  const [ehrData, setEhrData] = useState(null)
+  const [ehrRecords, setEhrRecords] = useState([])
+  const [ehrLoading, setEhrLoading] = useState(false)
+  const [uploadFile, setUploadFile] = useState(null)
+  const [uploadTitle, setUploadTitle] = useState('')
+  const [uploadType, setUploadType] = useState('Lab Result')
+  const [uploading, setUploading] = useState(false)
+
   const token = window.localStorage.getItem('medilink_doctor_token')
   const doctorStr = window.localStorage.getItem('medilink_doctor')
   const currentDoctor = doctorStr ? JSON.parse(doctorStr) : null
@@ -208,6 +218,68 @@ function DoctorDashboard() {
     }
   }
 
+  // ── Open EHR Modal ──
+  const openEHR = async (apt) => {
+    setEhrModal(apt)
+    setEhrLoading(true)
+    setEhrData(null)
+    setEhrRecords([])
+    setActionMsg({ text: '', type: '' })
+    
+    try {
+      const [profileRes, recordsRes] = await Promise.all([
+        fetch(`${API_BASE_URL}/profile/patient/${apt.userId}`, { headers: { Authorization: `Bearer ${token}` } }),
+        fetch(`${API_BASE_URL}/records/patient/${apt.userId}`, { headers: { Authorization: `Bearer ${token}` } })
+      ])
+      
+      if (profileRes.ok) {
+        const prodData = await profileRes.json()
+        setEhrData(prodData.profile)
+      }
+      if (recordsRes.ok) {
+        const recData = await recordsRes.json()
+        setEhrRecords(recData.records)
+      }
+    } catch (err) {
+      console.error('Failed to load EHR', err)
+    } finally {
+      setEhrLoading(false)
+    }
+  }
+
+  // ── Upload Record ──
+  const handleUploadRecord = async (e) => {
+    e.preventDefault()
+    if (!uploadFile || !uploadTitle) return
+    setUploading(true)
+
+    const formData = new FormData()
+    formData.append('document', uploadFile)
+    formData.append('title', uploadTitle)
+    formData.append('recordType', uploadType)
+    formData.append('appointmentId', ehrModal.id)
+    formData.append('targetPatientId', ehrModal.userId)
+
+    try {
+      const res = await fetch(`${API_BASE_URL}/records`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+        body: formData
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.message)
+      
+      setEhrRecords([data.record, ...ehrRecords])
+      setUploadFile(null)
+      setUploadTitle('')
+      setActionMsg({ text: 'Record uploaded successfully to patient EHR!', type: 'success' })
+    } catch (err) {
+      setActionMsg({ text: err.message, type: 'error' })
+    } finally {
+      setUploading(false)
+    }
+  }
+
   return (
     <div className="doctor-dashboard-page">
       <Navbar role="doctor" />
@@ -290,6 +362,7 @@ function DoctorDashboard() {
                           {apt.status === 'confirmed' && (
                             <>
                               <button className="doc-accept-btn" style={{ background: 'var(--success-bg)', color: '#059669' }} onClick={() => openPrescribe(apt)}>✍️ Prescribe</button>
+                              <button className="doc-accept-btn" style={{ background: 'rgba(56, 189, 248, 0.1)', color: '#0284c7' }} onClick={() => openEHR(apt)}>🏥 View EHR</button>
                               <button className="doc-accept-btn" style={{ background: 'rgba(99,102,241,0.1)', color: '#6366F1' }} onClick={() => openReferral(apt)}>🔀 Refer</button>
                             </>
                           )}
@@ -321,6 +394,7 @@ function DoctorDashboard() {
                     {apt.status === 'confirmed' && (
                       <>
                         <button className="doc-accept-btn" style={{ background: 'var(--success-bg)', color: '#059669' }} onClick={() => openPrescribe(apt)}>✍️ Prescribe</button>
+                        <button className="doc-accept-btn" style={{ background: 'rgba(56, 189, 248, 0.1)', color: '#0284c7' }} onClick={() => openEHR(apt)}>🏥 View EHR</button>
                         <button className="doc-accept-btn" style={{ background: 'rgba(99,102,241,0.1)', color: '#6366F1' }} onClick={() => openReferral(apt)}>🔀 Refer</button>
                       </>
                     )}
@@ -506,6 +580,62 @@ function DoctorDashboard() {
                 {referring ? 'Sending...' : 'Send Referral'}
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── EHR Modal ── */}
+      {ehrModal && (
+        <div className="doc-modal-overlay" onClick={() => setEhrModal(null)}>
+          <div className="doc-modal" style={{ maxWidth: '600px', padding: '2rem' }} onClick={(e) => e.stopPropagation()}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+              <h2 style={{ margin: 0 }}>🏥 Patient EHR</h2>
+              <button onClick={() => setEhrModal(null)} style={{ background: 'none', border: 'none', fontSize: '1.5rem', cursor: 'pointer', color: 'var(--text-muted)' }}>&times;</button>
+            </div>
+            
+            {ehrLoading ? (
+               <p style={{ color: 'var(--text-muted)' }}>Loading records...</p>
+            ) : (
+              <div style={{ maxHeight: '65vh', overflowY: 'auto', paddingRight: '0.5rem' }}>
+                {ehrData && (
+                  <div style={{ background: 'var(--surface)', padding: '1rem', borderRadius: '12px', border: '1px solid var(--border)', marginBottom: '1.5rem' }}>
+                    <h3 style={{ margin: '0 0 1rem 0' }}>{ehrData.fullName}</h3>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', fontSize: '0.9rem' }}>
+                      <div style={{ flex: '1 1 45%' }}><strong>Blood Group:</strong> {ehrData.bloodGroup || 'N/A'}</div>
+                      <div style={{ flex: '1 1 45%' }}><strong>DOB:</strong> {ehrData.dateOfBirth || 'N/A'}</div>
+                      <div style={{ flex: '1 1 100%', color: 'var(--error)' }}><strong>Allergies:</strong> {ehrData.allergies || 'None recorded'}</div>
+                    </div>
+                  </div>
+                )}
+                
+                <h3 style={{ fontSize: '1.1rem', marginBottom: '0.5rem' }}>Upload Clinical Note</h3>
+                <form onSubmit={handleUploadRecord} style={{ background: 'rgba(99,102,241,0.05)', padding: '1rem', borderRadius: '12px', marginBottom: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                   <input type="text" placeholder="Record Title (e.g. Lab Results)" required value={uploadTitle} onChange={e => setUploadTitle(e.target.value)} style={{ padding: '0.6rem', borderRadius: '6px', border: '1px solid #d1d5db' }}/>
+                   <select value={uploadType} onChange={e => setUploadType(e.target.value)} style={{ padding: '0.6rem', borderRadius: '6px', border: '1px solid #d1d5db' }}>
+                     <option>Lab Result</option><option>Prescription</option><option>Clinical Note</option><option>Other</option>
+                   </select>
+                   <input type="file" required onChange={e => setUploadFile(e.target.files[0])} style={{ padding: '0.6rem', border: '1px lightly dashed #d1d5db', borderRadius: '6px' }} />
+                   <button type="submit" className="doc-modal-submit" disabled={uploading} style={{ alignSelf: 'flex-start' }}>{uploading ? 'Uploading...' : 'Upload Record'}</button>
+                </form>
+
+                <h3 style={{ fontSize: '1.1rem', marginBottom: '0.5rem' }}>Past Records</h3>
+                {ehrRecords.length === 0 ? <p style={{ color: 'var(--text-muted)' }}>No records uploaded.</p> : (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                    {ehrRecords.map(rec => (
+                      <div key={rec.id} style={{ padding: '1rem', background: 'var(--bg-main)', border: '1px solid var(--border)', borderRadius: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <div>
+                          <strong>{rec.title}</strong> <span style={{ fontSize: '0.8rem', color: 'var(--primary)', background: 'var(--primary-glow)', padding: '2px 6px', borderRadius: '4px', marginLeft: '0.5rem' }}>{rec.recordType}</span>
+                          <p style={{ margin: '0.5rem 0 0 0', fontSize: '0.8rem', color: 'var(--text-muted)' }}>{new Date(rec.createdAt).toLocaleDateString()}</p>
+                        </div>
+                        {rec.fileUrl && <a href={rec.fileUrl} target="_blank" rel="noreferrer" style={{ color: '#6366F1', textDecoration: 'none', fontWeight: 600, fontSize: '0.9rem' }}>View file &rarr;</a>}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+            
+            {actionMsg.text && <p style={{ marginTop: '1rem', padding: '0.5rem', borderRadius: '6px', background: actionMsg.type === 'error' ? 'var(--error-glow)' : 'var(--success-bg)', color: actionMsg.type === 'error' ? 'var(--error)' : 'green' }}>{actionMsg.text}</p>}
           </div>
         </div>
       )}

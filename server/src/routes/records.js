@@ -27,6 +27,38 @@ router.get('/', async (req, res) => {
   }
 })
 
+// ─── GET /api/records/patient/:id ─── Get records of a patient (Doctor only)
+router.get('/patient/:id', async (req, res) => {
+  try {
+    if (req.user.role !== 'doctor') {
+      return res.status(403).json({ message: 'Only doctors can access patient records.' })
+    }
+
+    const patientId = req.params.id
+
+    // Check if the doctor is currently treating or has treated this patient
+    const doctorObj = await prisma.user.findUnique({ where: { id: req.user.userId }, select: { fullName: true } })
+    const linked = await prisma.appointment.findFirst({
+      where: { userId: patientId, doctorOrService: doctorObj.fullName }
+    })
+
+    if (!linked) {
+      return res.status(403).json({ message: 'Access denied: You do not have any appointments with this patient.' })
+    }
+
+    const records = await prisma.medicalRecord.findMany({
+      where: { patientId },
+      include: { appointment: { select: { doctorOrService: true, appointmentDate: true } } },
+      orderBy: { createdAt: 'desc' }
+    })
+    
+    return res.json({ records })
+  } catch (error) {
+    logger.error('Doctor list patient records error:', error)
+    return res.status(500).json({ message: 'Something went wrong. Please try again.' })
+  }
+})
+
 // ─── POST /api/records ─── Upload a medical record
 router.post('/', upload.single('document'), async (req, res) => {
   try {
@@ -43,8 +75,9 @@ router.post('/', upload.single('document'), async (req, res) => {
         return res.status(400).json({ message: 'Doctors must specify a targetPatientId' })
       }
       // IDOR fix: verify the patient has an appointment with this doctor
+      const doctorObj = await prisma.user.findUnique({ where: { id: req.user.userId }, select: { fullName: true } })
       const linked = await prisma.appointment.findFirst({
-        where: { userId: targetPatientId, doctorOrService: { contains: req.user.email } }
+        where: { userId: targetPatientId, doctorOrService: doctorObj.fullName }
       })
       if (!linked) {
         return res.status(403).json({ message: 'You can only add records for your own patients.' })

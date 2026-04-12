@@ -65,6 +65,48 @@ router.put('/', async (req, res) => {
   }
 })
 
+// GET /api/profile/patient/:id — Doctor fetches a specific patient's profile
+router.get('/patient/:id', async (req, res) => {
+  try {
+    if (req.user.role !== 'doctor') {
+      return res.status(403).json({ message: 'Only doctors can fetch patient profiles' })
+    }
+
+    const patientId = req.params.id
+
+    // Check if the doctor is currently treating or has treated this patient
+    const doctorObj = await prisma.user.findUnique({ where: { id: req.user.userId }, select: { fullName: true } })
+    const linked = await prisma.appointment.findFirst({
+      where: { userId: patientId, doctorOrService: doctorObj.fullName }
+    })
+
+    if (!linked) {
+      return res.status(403).json({ message: 'Access denied: You do not have any appointments with this patient.' })
+    }
+
+    const patient = await prisma.user.findUnique({
+      where: { id: patientId },
+      select: {
+        id: true,
+        fullName: true,
+        email: true,
+        phone: true,
+        dateOfBirth: true,
+        bloodGroup: true,
+        allergies: true,
+        emergencyContact: true,
+        avatarUrl: true,
+      }
+    })
+
+    if (!patient) return res.status(404).json({ message: 'Patient not found' })
+    return res.json({ profile: patient })
+  } catch (error) {
+    logger.error('Doctor fetch patient profile error:', error)
+    return res.status(500).json({ message: 'Internal server error' })
+  }
+})
+
 // GET /api/profile/admin/stats — Admin-only platform statistics
 router.get('/admin/stats', async (req, res) => {
   try {
