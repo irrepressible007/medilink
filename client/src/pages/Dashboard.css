@@ -1,0 +1,193 @@
+/* ── Dashboard Layout ── */
+.dashboard-page {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  width: 100%;
+  font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Navbar ── */
+.dashboard-navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 2.5rem;
+  height: 56px;
+  background: #3044b5;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
+  position: relative;
+  z-index: 10;
+}
+
+.navbar-logo {
+  font-size: 1.55rem;
+  font-weight: 700;
+  color: #f5e76f;
+  letter-spacing: 0.02em;
+  text-decoration: none;
+  cursor: pointer;
+  user-select: none;
+}
+
+.navbar-links {
+  display: flex;
+  align-items: center;
+  gap: 2.2rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.navbar-links li a {
+  color: #f5e76f;
+  text-decoration: none;
+  font-size: 1.02rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  padding: 0.3rem 0;
+  position: relative;
+  transition: color 0.2s ease;
+}
+
+.navbar-links li a::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: -2px;
+  height: 2px;
+  width: 0;
+  background: #fff;
+  border-radius: 2px;
+  transition: width 0.25s ease;
+}
+
+.navbar-links li a:hover {
+  color: #fff;
+}
+
+.navbar-links li a:hover::after {
+  width: 100%;
+}
+
+/* ── Hero Section ── */
+.dashboard-hero {
+  flex: 1;
+  position: relative;
+  width: 100%;
+  min-height: calc(100vh - 56px);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.dashboard-hero-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0) 55%,
+    rgba(20, 20, 40, 0.55) 100%
+  );
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* ── CTA Buttons Row ── */
+.dashboard-cta-row {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3.5rem;
+  padding: 2.5rem 2rem 3rem;
+  width: 100%;
+  flex-wrap: wrap;
+}
+
+.dashboard-cta-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 220px;
+  padding: 1rem 2.2rem;
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #1a1a2e;
+  background: #f0e68c;
+  border: 3px solid #bfb34a;
+  border-radius: 8px;
+  cursor: pointer;
+  text-decoration: none;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18);
+  transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+  user-select: none;
+}
+
+.dashboard-cta-btn:hover {
+  transform: translateY(-3px) scale(1.03);
+  background: #f7ef9e;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
+}
+
+.dashboard-cta-btn:active {
+  transform: translateY(0) scale(0.98);
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .dashboard-navbar {
+    padding: 0 1.2rem;
+  }
+
+  .navbar-links {
+    gap: 1.1rem;
+  }
+
+  .navbar-links li a {
+    font-size: 0.9rem;
+  }
+
+  .dashboard-cta-row {
+    gap: 1.2rem;
+    padding: 1.5rem 1rem 2rem;
+  }
+
+  .dashboard-cta-btn {
+    min-width: 160px;
+    padding: 0.8rem 1.4rem;
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .navbar-logo {
+    font-size: 1.2rem;
+  }
+
+  .navbar-links {
+    gap: 0.7rem;
+  }
+
+  .navbar-links li a {
+    font-size: 0.78rem;
+  }
+
+  .dashboard-cta-row {
+    flex-direction: column;
+    gap: 0.9rem;
+  }
+
+  .dashboard-cta-btn {
+    width: 100%;
+    min-width: unset;
+  }
+}
