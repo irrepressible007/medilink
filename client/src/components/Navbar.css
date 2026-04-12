@@ -1,0 +1,200 @@
+/* ================================================================
+   Navbar + Bottom Tab Bar
+   ================================================================ */
+
+/* ── Top Navbar ── */
+.ml-navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: var(--navbar-height);
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+  z-index: 500;
+  transition: background var(--transition-slow), border-color var(--transition-slow);
+}
+
+.ml-navbar-inner {
+  display: flex;
+  align-items: center;
+  height: 100%;
+  padding: 0 1.25rem;
+  max-width: 1400px;
+  margin: 0 auto;
+  gap: 1rem;
+}
+
+/* Brand */
+.ml-navbar-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  text-decoration: none;
+  flex-shrink: 0;
+}
+
+.ml-navbar-logo-icon {
+  font-size: 1.4rem;
+  line-height: 1;
+}
+
+.ml-navbar-logo-text {
+  font-size: 1.2rem;
+  font-weight: 800;
+  background: linear-gradient(135deg, var(--primary), var(--accent));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: -0.02em;
+}
+
+/* Desktop nav links */
+.ml-navbar-links {
+  display: none;
+  align-items: center;
+  gap: 0.25rem;
+  flex: 1;
+  margin-left: 1.5rem;
+}
+
+.ml-navbar-link {
+  padding: 0.4rem 0.75rem;
+  border-radius: var(--radius);
+  font-size: 0.88rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  text-decoration: none;
+  transition: all var(--transition);
+}
+
+.ml-navbar-link:hover,
+.ml-navbar-link.active {
+  background: var(--surface-3);
+  color: var(--primary);
+}
+
+/* Actions */
+.ml-navbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-left: auto;
+}
+
+.ml-theme-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-full);
+  background: var(--surface-3);
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all var(--transition);
+  flex-shrink: 0;
+}
+.ml-theme-btn:hover {
+  background: var(--surface-2);
+  border-color: var(--border-strong);
+  transform: rotate(15deg);
+}
+
+.ml-navbar-logout {
+  padding: 0.4rem 1rem;
+  border-radius: var(--radius);
+  background: var(--danger-bg);
+  color: var(--danger);
+  font-size: 0.82rem;
+  font-weight: 600;
+  text-decoration: none;
+  border: 1px solid transparent;
+  transition: all var(--transition);
+}
+.ml-navbar-logout:hover {
+  border-color: var(--danger);
+  background: var(--danger);
+  color: white;
+}
+
+/* ── Bottom Tab Bar (mobile only) ── */
+.ml-bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: var(--bottom-nav-height);
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: stretch;
+  z-index: 500;
+  box-shadow: 0 -4px 24px rgba(0,0,0,0.08);
+  /* Safe area for iPhone notch */
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.ml-bottom-tab {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  text-decoration: none;
+  color: var(--text-light);
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  transition: color var(--transition);
+  position: relative;
+}
+
+.ml-bottom-tab::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 20%;
+  right: 20%;
+  height: 2px;
+  background: var(--primary);
+  border-radius: 0 0 2px 2px;
+  transform: scaleX(0);
+  transition: transform var(--transition);
+}
+
+.ml-bottom-tab.active {
+  color: var(--primary);
+}
+
+.ml-bottom-tab.active::before {
+  transform: scaleX(1);
+}
+
+.ml-bottom-tab-icon {
+  font-size: 1.3rem;
+  line-height: 1;
+  transition: transform var(--transition);
+}
+
+.ml-bottom-tab.active .ml-bottom-tab-icon {
+  transform: translateY(-2px);
+}
+
+.ml-bottom-tab-label {
+  font-size: 0.65rem;
+}
+
+/* ── Responsive ── */
+@media (min-width: 769px) {
+  .ml-navbar-links { display: flex; }
+  .ml-bottom-nav   { display: none; }
+}
+
+@media (max-width: 768px) {
+  /* Show hamburger version of desktop links? No — we use bottom nav only */
+  .ml-navbar-links { display: none; }
+}

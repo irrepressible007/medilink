@@ -1,50 +1,35 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { API_BASE_URL } from '../config.js'
-import heroImg from '../assets/healthcare_hero.png'
 import './AuthPages.css'
 
 function LoginPage() {
   const navigate = useNavigate()
-  const [form, setForm] = useState({
-    email: '',
-    password: '',
-  })
+  const [form, setForm] = useState({ email: '', password: '' })
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState('')
-  const [success, setSuccess] = useState('')
 
-  const handleChange = (event) => {
-    const { name, value } = event.target
-    setForm((prev) => ({ ...prev, [name]: value }))
+  const handleChange = (e) => {
+    const { name, value } = e.target
+    setForm(prev => ({ ...prev, [name]: value }))
   }
 
-  const handleSubmit = async (event) => {
-    event.preventDefault()
+  const handleSubmit = async (e) => {
+    e.preventDefault()
     setError('')
-    setSuccess('')
     setSubmitting(true)
-
     try {
-      const response = await fetch(`${API_BASE_URL}/auth/login`, {
+      const res = await fetch(`${API_BASE_URL}/auth/login`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(form),
       })
-
-      const data = await response.json()
-
-      if (!response.ok) {
-        throw new Error(data?.message || 'Login failed')
-      }
-
+      const data = await res.json()
+      if (!res.ok) throw new Error(data?.message || 'Login failed')
       if (data.token) {
-        window.localStorage.setItem('medilink_token', data.token)
+        localStorage.setItem('medilink_token', data.token)
+        if (data.user) localStorage.setItem('medilink_user', JSON.stringify(data.user))
       }
-
-      setSuccess('Logged in successfully.')
       navigate('/dashboard')
     } catch (err) {
       setError(err.message)
@@ -55,60 +40,72 @@ function LoginPage() {
 
   return (
     <div className="auth-page">
-      {/* ---- Left: Form Panel ---- */}
-      <div className="auth-form-panel">
-        <div className="auth-form-container">
-          <h1 className="auth-heading">LOGIN</h1>
-
-          <form onSubmit={handleSubmit}>
-            {error && <p className="auth-error-msg">{error}</p>}
-            {success && <p className="auth-success-msg">{success}</p>}
-
-            <div className="auth-field-group">
-              <label htmlFor="login-email">Email or Phone:</label>
-              <input
-                id="login-email"
-                name="email"
-                type="email"
-                autoComplete="email"
-                required
-                value={form.email}
-                onChange={handleChange}
-              />
-            </div>
-
-            <div className="auth-field-group">
-              <label htmlFor="login-password">Password:</label>
-              <input
-                id="login-password"
-                name="password"
-                type="password"
-                autoComplete="current-password"
-                required
-                value={form.password}
-                onChange={handleChange}
-              />
-            </div>
-
-            <button
-              type="submit"
-              className="auth-submit-btn"
-              disabled={submitting}
-            >
-              {submitting ? 'Signing in…' : 'Submit'}
-            </button>
-          </form>
-
-          <p className="auth-footer-link">
-            Don&apos;t have an account?{' '}
-            <Link to="/signup">Signup</Link>
-          </p>
+      <div className="auth-card ml-fade-up">
+        {/* Brand */}
+        <div className="auth-brand">
+          <div className="auth-brand-mark">⚕️</div>
+          <span className="auth-brand-name">MediLink</span>
+          <span className="auth-brand-tagline">Your Health, Connected</span>
         </div>
-      </div>
 
-      {/* ---- Right: Hero Image ---- */}
-      <div className="auth-hero-panel">
-        <img src={heroImg} alt="Healthcare professional with patient" />
+        <h1 className="auth-heading">Welcome back</h1>
+
+        <form className="auth-form" onSubmit={handleSubmit}>
+          {error && <p className="auth-error-msg">⚠️ {error}</p>}
+
+          <div className="ml-field">
+            <label className="ml-label" htmlFor="login-email">Email address</label>
+            <input
+              className="ml-input"
+              id="login-email"
+              name="email"
+              type="email"
+              autoComplete="email"
+              required
+              placeholder="you@example.com"
+              value={form.email}
+              onChange={handleChange}
+            />
+          </div>
+
+          <div className="ml-field">
+            <label className="ml-label" htmlFor="login-password">Password</label>
+            <input
+              className="ml-input"
+              id="login-password"
+              name="password"
+              type="password"
+              autoComplete="current-password"
+              required
+              placeholder="••••••••"
+              value={form.password}
+              onChange={handleChange}
+            />
+          </div>
+
+          <button type="submit" className="auth-submit" disabled={submitting}>
+            {submitting ? 'Signing in…' : 'Sign In →'}
+          </button>
+        </form>
+
+        <p className="auth-footer">
+          Don't have an account? <Link to="/signup">Create one</Link>
+        </p>
+
+        <div className="auth-features">
+          <div className="auth-feature-item">
+            <span className="auth-feature-icon">🔒</span>
+            <span>Secure</span>
+          </div>
+          <div className="auth-feature-item">
+            <span className="auth-feature-icon">📱</span>
+            <span>Mobile</span>
+          </div>
+          <div className="auth-feature-item">
+            <span className="auth-feature-icon">🏥</span>
+            <span>Trusted</span>
+          </div>
+        </div>
       </div>
     </div>
   )

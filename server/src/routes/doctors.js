@@ -4,14 +4,15 @@ import { PrismaClient } from '../../generated/prisma/index.js'
 const prisma = new PrismaClient()
 const router = express.Router()
 
-// ─── GET /api/doctors?search=... ─── Search doctors by name
+// ─── GET /api/doctors?search=...&specialty=... ─── Search doctors by name or specialty
 router.get('/', async (req, res) => {
   try {
-    const { search } = req.query
+    const { search, specialty } = req.query
 
     const doctors = await prisma.user.findMany({
       where: {
         role: 'doctor',
+        ...(specialty ? { specialty } : {}),
         ...(search
           ? {
               fullName: {
@@ -25,6 +26,7 @@ router.get('/', async (req, res) => {
         id: true,
         fullName: true,
         email: true,
+        specialty: true,
       },
       orderBy: { fullName: 'asc' },
       take: 20,

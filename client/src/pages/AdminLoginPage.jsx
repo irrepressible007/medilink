@@ -1,7 +1,7 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import { API_BASE_URL } from '../config.js'
-import './AdminPages.css'
+import './AuthPages.css'
 
 function AdminLoginPage() {
   const navigate = useNavigate()
@@ -32,7 +32,7 @@ function AdminLoginPage() {
         throw new Error(data?.message || 'Login failed')
       }
 
-      window.localStorage.setItem('medilink_admin_token', data.token)
+      localStorage.setItem('medilink_admin_token', data.token)
       navigate('/admin/dashboard')
     } catch (err) {
       setError(err.message)
@@ -42,48 +42,57 @@ function AdminLoginPage() {
   }
 
   return (
-    <div className="admin-login-page">
-      <div className="admin-login-card">
-        <div className="auth-header">
-          <h1 className="auth-title">Admin Portal</h1>
-          <p className="auth-subtitle">Sign in with admin credentials</p>
+    <div className="auth-page">
+      <div className="auth-card ml-fade-up">
+        <div className="auth-brand">
+          <div className="auth-brand-mark" style={{ background: 'var(--text)' }}>🛡️</div>
+          <span className="auth-brand-name">MediLink</span>
+          <span className="auth-brand-tagline">Admin Portal</span>
         </div>
 
-        <form className="auth-form" onSubmit={handleSubmit}>
-          {error && <p className="auth-error">{error}</p>}
+        <h1 className="auth-heading">System Administrator</h1>
 
-          <div className="auth-field">
-            <label htmlFor="admin-username">Username</label>
+        <form className="auth-form" onSubmit={handleSubmit}>
+          {error && <p className="auth-error-msg">⚠️ {error}</p>}
+
+          <div className="ml-field">
+            <label className="ml-label" htmlFor="admin-username">Username</label>
             <input
+              className="ml-input"
               id="admin-username"
               name="username"
               type="text"
               autoComplete="username"
               required
-              placeholder="Enter username"
+              placeholder="Admin username"
               value={form.username}
               onChange={handleChange}
             />
           </div>
 
-          <div className="auth-field">
-            <label htmlFor="admin-password">Password</label>
+          <div className="ml-field">
+            <label className="ml-label" htmlFor="admin-password">Password</label>
             <input
+              className="ml-input"
               id="admin-password"
               name="password"
               type="password"
               autoComplete="current-password"
               required
-              placeholder="Enter password"
+              placeholder="••••••••"
               value={form.password}
               onChange={handleChange}
             />
           </div>
 
-          <button type="submit" className="auth-button" disabled={submitting}>
-            {submitting ? 'Signing in...' : 'Sign in'}
+          <button type="submit" className="auth-submit" style={{ background: 'var(--text)' }} disabled={submitting}>
+            {submitting ? 'Authenticating...' : 'Secure Login →'}
           </button>
         </form>
+
+        <p className="auth-footer" style={{ marginTop: '2rem' }}>
+          Restricted access. Authorized personnel only.
+        </p>
       </div>
     </div>
   )

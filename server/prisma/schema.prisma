@@ -15,17 +15,19 @@ datasource db {
 }
 
 model User {
-  id           String        @id @default(auto()) @map("_id") @db.ObjectId
-  fullName     String
-  email        String        @unique
-  passwordHash String
-  phone        String?
-  role         String        @default("patient")
-  createdAt    DateTime      @default(now())
-  appointments Appointment[]
+  id               String            @id @default(auto()) @map("_id") @db.ObjectId
+  fullName         String
+  email            String            @unique
+  passwordHash     String
+  phone            String?
+  role             String            @default("patient")
+  specialty        String?           // Used for classifying doctors
+  createdAt        DateTime          @default(now())
+  appointments     Appointment[]
   followUpRequests FollowUpRequest[]
   prescriptions    Prescription[]
   notifications    Notification[]
+  medicalRecords   MedicalRecord[]
 }
 
 model Appointment {
@@ -51,6 +53,7 @@ model Appointment {
   followUpRequests FollowUpRequest[]
   prescriptions    Prescription[]
   notifications    Notification[]
+  medicalRecords   MedicalRecord[]
 }
 
 model FollowUpRequest {
@@ -101,4 +104,82 @@ model Notification {
 
   userId String @db.ObjectId
   user   User   @relation(fields: [userId], references: [id])
+}
+
+model MedicalRecord {
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  title         String
+  description   String?
+  recordType    String   // e.g., "lab_result", "doctor_note", "xray"
+  fileUrl       String?  // Cloudinary/AWS URL
+  createdAt     DateTime @default(now())
+
+  patientId     String   @db.ObjectId
+  patient       User     @relation(fields: [patientId], references: [id])
+
+  appointmentId String?      @db.ObjectId
+  appointment   Appointment? @relation(fields: [appointmentId], references: [id])
+}
+
+model Conversation {
+  id           String    @id @default(auto()) @map("_id") @db.ObjectId
+  patientId    String    @db.ObjectId
+  doctorId     String    @db.ObjectId
+  updatedAt    DateTime  @updatedAt
+  createdAt    DateTime  @default(now())
+
+  messages     Message[]
+}
+
+model Message {
+  id             String       @id @default(auto()) @map("_id") @db.ObjectId
+  content        String
+  senderId       String       @db.ObjectId
+  conversationId String       @db.ObjectId
+  hasAttachment  Boolean      @default(false)
+  fileUrl        String?
+  createdAt      DateTime     @default(now())
+
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+}
+
+model EmergencyRequest {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  latitude    Float
+  longitude   Float
+  status      String   @default("pending") // pending, dispatched, resolved
+  createdAt   DateTime @default(now())
+  
+  userId      String   @db.ObjectId
+}
+
+model Referral {
+  id               String   @id @default(auto()) @map("_id") @db.ObjectId
+  referringDocId   String   @db.ObjectId
+  referredToDocId  String   @db.ObjectId
+  patientId        String   @db.ObjectId
+  notes            String
+  createdAt        DateTime @default(now())
+}
+
+model BloodDonor {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  fullName    String
+  bloodGroup  String
+  phone       String
+  city        String
+  lastDonated DateTime?
+  createdAt   DateTime @default(now())
+}
+
+model BloodRequest {
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  patientName   String
+  bloodGroup    String
+  hospital      String
+  city          String
+  phone         String
+  urgency       String   @default("regular") // regular, urgent, emergency
+  status        String   @default("open")
+  createdAt     DateTime @default(now())
 }

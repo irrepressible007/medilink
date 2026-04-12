@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { API_BASE_URL } from '../config.js'
+import { Navbar, BottomNav } from '../components/Navbar.jsx'
 import './MySchedule.css'
-import './Dashboard.css'
 
 const MONTH_NAMES = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
 
@@ -19,7 +19,7 @@ function MySchedule() {
   const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState('all')
 
-  const token = window.localStorage.getItem('medilink_token')
+  const token = localStorage.getItem('medilink_token')
 
   useEffect(() => {
     fetchSchedule()
@@ -39,7 +39,6 @@ function MySchedule() {
     }
   }
 
-  // Compute summary counts
   const counts = {
     total: appointments.length,
     pending: appointments.filter((a) => a.status === 'pending' || a.status === 'rescheduled').length,
@@ -47,7 +46,6 @@ function MySchedule() {
     completed: appointments.filter((a) => a.status === 'completed').length,
   }
 
-  // Filter
   const filtered = filter === 'all'
     ? appointments
     : appointments.filter((a) => {
@@ -57,21 +55,12 @@ function MySchedule() {
 
   return (
     <div className="schedule-page">
-      {/* ── Navbar ── */}
-      <nav className="dashboard-navbar">
-        <span className="navbar-logo">MediLink</span>
-        <ul className="navbar-links">
-          <li><Link to="/dashboard">Home</Link></li>
-          <li><Link to="/consultation-history">My History</Link></li>
-          <li><Link to="/appointments">Book Appointment</Link></li>
-          <li><Link to="/schedule">My Schedule</Link></li>
-        </ul>
-      </nav>
+      <Navbar role="patient" />
 
       {/* ── Summary Row ── */}
-      <div className="schedule-header">
+      <div className="schedule-header ml-fade-up">
         <h1 className="schedule-title">My Schedule</h1>
-        <p className="schedule-subtitle">View and track all your upcoming and past appointments.</p>
+        <p className="schedule-subtitle">Track and manage all your upcoming and past appointments.</p>
 
         <div className="schedule-summary">
           <div className="summary-card">
@@ -82,7 +71,7 @@ function MySchedule() {
             </div>
           </div>
           <div className="summary-card">
-            <div className="summary-icon pending">⏳</div>
+            <div className="summary-icon pending">⌛</div>
             <div className="summary-info">
               <span className="summary-count">{counts.pending}</span>
               <span className="summary-label">Pending</span>
@@ -106,7 +95,7 @@ function MySchedule() {
       </div>
 
       {/* ── Filter Tabs ── */}
-      <div className="schedule-filters">
+      <div className="schedule-filters ml-fade-up" style={{ animationDelay: '0.1s' }}>
         {['all', 'pending', 'confirmed', 'completed', 'cancelled'].map((f) => (
           <button
             key={f}
@@ -119,15 +108,14 @@ function MySchedule() {
       </div>
 
       {/* ── Cards ── */}
-      <div className="schedule-container">
+      <div className="schedule-container ml-fade-up" style={{ animationDelay: '0.2s' }}>
         {loading && <div className="schedule-loading">Loading your schedule...</div>}
 
         {!loading && filtered.length === 0 && (
           <div className="schedule-empty">
             <div className="schedule-empty-icon">📅</div>
-            <p>No appointments found{filter !== 'all' ? ` with status "${filter}"` : ''}.</p>
-            <p>Book an appointment to get started!</p>
-            <Link to="/appointments" className="schedule-empty-link">
+            <p>No appointments found{filter !== 'all' ? ` for "${filter}"` : ''}.</p>
+            <Link to="/appointments" className="ml-btn ml-btn-primary" style={{ marginTop: '1rem', textDecoration: 'none' }}>
               Book an Appointment
             </Link>
           </div>
@@ -139,13 +127,11 @@ function MySchedule() {
               const { day, month } = parseDate(apt.appointmentDate)
               return (
                 <div className="schedule-card" key={apt.id}>
-                  {/* Date block */}
                   <div className="schedule-date-block">
                     <div className="schedule-date-day">{day}</div>
                     <div className="schedule-date-month">{month}</div>
                   </div>
 
-                  {/* Body */}
                   <div className="schedule-card-body">
                     <div className="schedule-card-top">
                       <h3 className="schedule-card-doctor">
@@ -160,7 +146,6 @@ function MySchedule() {
                     </div>
                   </div>
 
-                  {/* Status */}
                   <div className="schedule-status">
                     <span className={`schedule-badge ${apt.status}`}>
                       {apt.status}
@@ -172,6 +157,8 @@ function MySchedule() {
           </div>
         )}
       </div>
+
+      <BottomNav role="patient" />
     </div>
   )
 }

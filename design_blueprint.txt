@@ -1,0 +1,97 @@
+# MediLink Design System Blueprint 
+
+This document serves as the master source of truth for the MediLink UI/UX. It outlines all design tokens, CSS variables, and global classes configured in index.css to ensure 100% consistency when building new components or maintaining existing ones.
+
+## 1. Theme Tokens (CSS Variables)
+
+We use a CSS variable system that automatically switches based on data-theme="light|dark" attached to the <body> element. Never hard-code these colors in individual CSS files.
+
+### Global Colors
+- --primary: 
+  - Light: #0057B7
+  - Dark: #3B82F6
+- --primary-light:
+  - Light: #3B82F6
+  - Dark: #60A5FA
+- --accent:
+  - Light: #00BFA5
+  - Dark: #2DD4BF
+
+### Backgrounds & Surfaces
+- --bg: (Application background)
+  - Light: #F8FAFC
+  - Dark: #0B1120
+- --surface: (Cards, Modals, Top-level containers)
+  - Light: #FFFFFF
+  - Dark: #1E293B
+- --surface-2: (Secondary boxes, emphasized cards)
+  - Light: #F1F5F9
+  - Dark: #334155
+- --surface-3: (Hover states, Inputs, active fields)
+  - Light: #E2E8F0
+  - Dark: #475569
+
+### Text Colors
+- --text: (Headings, primary content)
+  - Light: #0F172A
+  - Dark: #F8FAFC
+- --text-muted: (Subtitles, helper text, empty states)
+  - Light: #64748B
+  - Dark: #94A3B8
+- --text-light: (Placeholders, inactive icons)
+  - Light: #94A3B8
+  - Dark: #64748B
+
+### Status Colors (Semantic)
+- Success: --success / --success-bg -> #10B981 (Emerald)
+- Danger: --danger / --danger-bg -> #EF4444 (Red)
+- Warning: --warning / --warning-bg -> #F59E0B (Amber)
+
+---
+
+## 2. Typography & Effects
+
+Font Family: 'Inter', system-ui, sans-serif
+
+Radii:
+- --radius-sm: 6px
+- --radius: 8px (standard buttons, inputs)
+- --radius-lg: 16px (standard cards)
+- --radius-xl: 24px (modals)
+- --radius-full: 999px (pills, badges)
+
+Animations:
+- ml-fadeIn / ml-fadeOut: Standard layer appearances
+- ml-fadeUp: Hero loading animation, modal pops
+- ml-pulse: Used for live active status indicators
+
+---
+
+## 3. Global Component Classes
+
+Always use these pre-defined utility classes in JSX instead of writing custom CSS.
+
+### Containers & Layouts
+- .ml-card: Standard surface container. Inherits --surface background, standard border, and hover transformation (translateY).
+- .ml-field: Wrapping <div> for forms.
+
+### Interactive Elements
+- .ml-btn: Base button class.
+  - .ml-btn-primary: Gradient styled brand button.
+  - .ml-btn-secondary: Solid secondary brand button.
+  - .ml-btn-ghost: Outline/background-less button for cancel/back actions.
+- .ml-input: Standard input field styling.
+- .ml-label: Standard input label formatting.
+
+### Status Indicators
+- .ml-badge: Base badge/pill.
+  - .ml-badge-success / .ml-badge-danger / .ml-badge-warning / .ml-badge-info: Applies respective status backgrounds.
+- .ml-alert: Full width horizontal alert banner used above forms to display API errors/success messages. Add .ml-alert-error for red variations.
+
+---
+
+## 4. Mobile First Paradigms
+
+1. Safe-Area Layouts: All page root elements should implement padding-bottom: var(--bottom-nav-height) so the fixed mobile navigation bar doesn't overlap bottom-scrolling content.
+2. BottomNav Component: Replaces crowded desktop header links.
+3. Responsive Grid Checks: Do not use hard break units (100vw); respect the layout containers scaling back down to grid columns on mobile.

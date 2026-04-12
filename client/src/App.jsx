@@ -5,7 +5,10 @@ import SignupPage from './pages/SignupPage.jsx'
 import Dashboard from './pages/Dashboard.jsx'
 import BookAppointment from './pages/BookAppointment.jsx'
 import ConsultationHistory from './pages/ConsultationHistory.jsx'
+import MedicalRecords from './pages/MedicalRecords.jsx'
+import Messages from './pages/Messages.jsx'
 import MySchedule from './pages/MySchedule.jsx'
+import BloodBank from './pages/BloodBank.jsx'
 import AdminLoginPage from './pages/AdminLoginPage.jsx'
 import AdminDashboard from './pages/AdminDashboard.jsx'
 import DoctorLoginPage from './pages/DoctorLoginPage.jsx'
@@ -20,7 +23,10 @@ function App() {
       <Route path="/dashboard" element={<Dashboard />} />
       <Route path="/appointments" element={<BookAppointment />} />
       <Route path="/consultation-history" element={<ConsultationHistory />} />
+      <Route path="/records" element={<MedicalRecords />} />
+      <Route path="/messages" element={<Messages />} />
       <Route path="/schedule" element={<MySchedule />} />
+      <Route path="/blood-bank" element={<BloodBank />} />
 
       {/* Admin */}
       <Route path="/admin" element={<AdminLoginPage />} />

@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react'
-import { Link } from 'react-router-dom'
 import { API_BASE_URL } from '../config.js'
+import { Navbar, BottomNav } from '../components/Navbar.jsx'
 import './AdminPages.css'
-import './Dashboard.css'
 
 function DoctorDashboard() {
   const doctorName = window.localStorage.getItem('medilink_doctor_name') || 'Doctor'
@@ -17,7 +16,26 @@ function DoctorDashboard() {
   const [newTime, setNewTime] = useState('')
   const [rescheduling, setRescheduling] = useState(false)
 
+  // Prescribe modal state
+  const [prescribeModal, setPrescribeModal] = useState(null)
+  const [prescriptionData, setPrescriptionData] = useState({
+    medicationName: '',
+    dosage: '',
+    frequency: '',
+    startDate: '',
+    endDate: '',
+  })
+  const [prescribing, setPrescribing] = useState(false)
+
+  // Referral modal state
+  const [referralModal, setReferralModal] = useState(null) // stores the appointment
+  const [availableDoctors, setAvailableDoctors] = useState([])
+  const [referralData, setReferralData] = useState({ referredToDocId: '', notes: '' })
+  const [referring, setReferring] = useState(false)
+
   const token = window.localStorage.getItem('medilink_doctor_token')
+  const doctorStr = window.localStorage.getItem('medilink_doctor')
+  const currentDoctor = doctorStr ? JSON.parse(doctorStr) : null
 
   const fetchAppointments = async () => {
     try {
@@ -105,25 +123,117 @@ function DoctorDashboard() {
     }
   }
 
+  // ── Open prescribe modal ──
+  const openPrescribe = (apt) => {
+    setPrescribeModal(apt)
+    setPrescriptionData({
+      medicationName: '',
+      dosage: '',
+      frequency: '',
+      startDate: new Date().toISOString().split('T')[0],
+      endDate: '',
+    })
+    setActionMsg({ text: '', type: '' })
+  }
+
+  // ── Submit prescription ──
+  const handlePrescribe = async () => {
+    const { medicationName, dosage, frequency, startDate } = prescriptionData
+    if (!medicationName || !dosage || !frequency || !startDate) return
+    
+    setPrescribing(true)
+    try {
+      const res = await fetch(`${API_BASE_URL}/prescriptions`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ ...prescriptionData, appointmentId: prescribeModal.id }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.message)
+
+      setActionMsg({ text: `Prescription generated and emailed to patient!`, type: 'success' })
+      setPrescribeModal(null)
+    } catch (err) {
+      setActionMsg({ text: err.message, type: 'error' })
+    } finally {
+      setPrescribing(false)
+    }
+  }
+
+  // ── Open referral modal ──
+  const openReferral = async (apt) => {
+    setReferralModal(apt)
+    setReferralData({ referredToDocId: '', notes: '' })
+    setActionMsg({ text: '', type: '' })
+    // Fetch all doctors to pick the specialist
+    try {
+      const res = await fetch(`${API_BASE_URL}/doctors`)
+      const data = await res.json()
+      // Exclude self
+      const others = (data.doctors || []).filter(d => d.id !== currentDoctor?.id)
+      setAvailableDoctors(others)
+    } catch (err) {
+      console.error('Failed to load doctors', err)
+    }
+  }
+
+  // ── Submit referral ──
+  const handleReferral = async () => {
+    if (!referralData.referredToDocId || !referralData.notes.trim()) return
+    setReferring(true)
+    try {
+      const res = await fetch(`${API_BASE_URL}/referrals`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          referredToDocId: referralData.referredToDocId,
+          patientId: referralModal.userId,
+          notes: referralData.notes,
+        }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.message)
+      setActionMsg({ text: data.message, type: 'success' })
+      setReferralModal(null)
+    } catch (err) {
+      setActionMsg({ text: err.message, type: 'error' })
+    } finally {
+      setReferring(false)
+    }
+  }
+
   return (
     <div className="doctor-dashboard-page">
-      {/* ── Navbar ── */}
-      <nav className="doctor-navbar">
-        <span className="navbar-logo">MediLink Doctor</span>
-        <ul className="navbar-links">
-          <li><Link to="/doctor/dashboard">Dashboard</Link></li>
-          <li><Link to="/doctor/">Logout</Link></li>
-        </ul>
-      </nav>
+      <Navbar role="doctor" />
 
-      {/* ── Content ── */}
-      <div className="doctor-content" style={{ justifyContent: 'flex-start' }}>
-        <h1 className="doctor-welcome">Welcome, {doctorName}</h1>
-        <p className="doctor-welcome-sub" style={{ marginBottom: '1.25rem' }}>
-          Patient Appointments
-        </p>
-
-        {/* Action message banner */}
+      {/* ── Hero ── */}
+      <div className="doctor-hero">
+        <div className="doctor-hero-content">
+          <h1 className="doctor-welcome">Welcome, Dr. {doctorName} 👨‍⚕️</h1>
+          <p className="doctor-welcome-sub">Manage your patient appointments below</p>
+          <div className="doctor-stats">
+            <div className="doctor-stat-card">
+              <div className="doctor-stat-value">{appointments.length}</div>
+              <div className="doctor-stat-label">Total</div>
+            </div>
+            <div className="doctor-stat-card">
+              <div className="doctor-stat-value">{appointments.filter(a => a.status === 'pending').length}</div>
+              <div className="doctor-stat-label">Pending</div>
+            </div>
+            <div className="doctor-stat-card">
+              <div className="doctor-stat-value">{appointments.filter(a => a.status === 'confirmed').length}</div>
+              <div className="doctor-stat-label">Confirmed</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div className="doctor-content">
         {actionMsg.text && (
           <div className={`doc-action-msg ${actionMsg.type}`}>
             {actionMsg.type === 'success' ? '✅ ' : '⚠️ '}
@@ -131,76 +241,98 @@ function DoctorDashboard() {
           </div>
         )}
 
-        {loading && <p style={{ color: '#047857' }}>Loading appointments...</p>}
+        {loading && <p style={{ color: 'var(--text-muted)' }}>Loading appointments…</p>}
         {error && <p className="doctor-signup-error" style={{ maxWidth: 600 }}>{error}</p>}
 
         {!loading && !error && appointments.length === 0 && (
-          <p style={{ color: '#6b7280', fontSize: '1rem' }}>No appointments yet.</p>
+          <p style={{ color: 'var(--text-muted)' }}>No appointments yet.</p>
         )}
 
         {!loading && appointments.length > 0 && (
-          <div className="appointments-table-wrapper">
-            <table className="appointments-table">
-              <thead>
-                <tr>
-                  <th>#</th>
-                  <th>Patient Name</th>
-                  <th>Email</th>
-                  <th>Contact</th>
-                  <th>Date</th>
-                  <th>Time</th>
-                  <th>Request For</th>
-                  <th>Status</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {appointments.map((apt, i) => (
-                  <tr key={apt.id}>
-                    <td>{i + 1}</td>
-                    <td>{apt.patientName}</td>
-                    <td>{apt.email}</td>
-                    <td>{apt.contactNumber}</td>
-                    <td>{apt.appointmentDate}</td>
-                    <td>{apt.appointmentTime}</td>
-                    <td>{apt.requestFor || '—'}</td>
-                    <td>
-                      <span className={`status-badge status-${apt.status}`}>
-                        {apt.status}
-                      </span>
-                    </td>
-                    <td>
-                      <div className="doc-actions-cell">
-                        {(apt.status === 'pending' || apt.status === 'rescheduled') && (
-                          <button
-                            className="doc-accept-btn"
-                            onClick={() => handleAccept(apt.id)}
-                            title="Accept this appointment"
-                          >
-                            ✓ Accept
-                          </button>
-                        )}
-                        {apt.status !== 'cancelled' && (
-                          <button
-                            className="doc-reschedule-btn"
-                            onClick={() => openReschedule(apt)}
-                            title="Reschedule this appointment"
-                          >
-                            📅 Reschedule
-                          </button>
-                        )}
-                        {apt.status === 'confirmed' && (
-                          <span className="doc-confirmed-label">✔ Confirmed</span>
-                        )}
-                      </div>
-                    </td>
+          <>
+            {/* Desktop Table */}
+            <div className="appointments-table-wrapper">
+              <table className="appointments-table">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Patient</th>
+                    <th>Email</th>
+                    <th>Contact</th>
+                    <th>Date</th>
+                    <th>Time</th>
+                    <th>Request</th>
+                    <th>Status</th>
+                    <th>Actions</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {appointments.map((apt, i) => (
+                    <tr key={apt.id}>
+                      <td>{i + 1}</td>
+                      <td style={{ fontWeight: 600 }}>{apt.patientName}</td>
+                      <td style={{ color: 'var(--text-muted)' }}>{apt.email}</td>
+                      <td>{apt.contactNumber}</td>
+                      <td>{apt.appointmentDate}</td>
+                      <td>{apt.appointmentTime}</td>
+                      <td>{apt.requestFor || '—'}</td>
+                      <td>
+                        <span className={`status-badge status-${apt.status}`}>{apt.status}</span>
+                      </td>
+                      <td>
+                        <div className="doc-actions-cell">
+                          {(apt.status === 'pending' || apt.status === 'rescheduled') && (
+                            <button className="doc-accept-btn" onClick={() => handleAccept(apt.id)}>✓ Accept</button>
+                          )}
+                          {apt.status !== 'cancelled' && (
+                            <button className="doc-reschedule-btn" onClick={() => openReschedule(apt)}>📅 Reschedule</button>
+                          )}
+                          {apt.status === 'confirmed' && (
+                            <>
+                              <button className="doc-accept-btn" style={{ background: 'var(--success-bg)', color: '#059669' }} onClick={() => openPrescribe(apt)}>✍️ Prescribe</button>
+                              <button className="doc-accept-btn" style={{ background: 'rgba(99,102,241,0.1)', color: '#6366F1' }} onClick={() => openReferral(apt)}>🔀 Refer</button>
+                            </>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Mobile Cards */}
+            <div className="appointments-mobile-list">
+              {appointments.map(apt => (
+                <div key={apt.id} className="appt-mobile-card">
+                  <div className="appt-mobile-card-header">
+                    <span className="appt-mobile-card-name">{apt.patientName}</span>
+                    <span className={`status-badge status-${apt.status}`}>{apt.status}</span>
+                  </div>
+                  <p className="appt-mobile-card-meta">📅 {apt.appointmentDate} at {apt.appointmentTime}</p>
+                  <p className="appt-mobile-card-meta">📋 {apt.requestFor || 'General Consultation'}</p>
+                  <div className="appt-mobile-actions">
+                    {(apt.status === 'pending' || apt.status === 'rescheduled') && (
+                      <button className="doc-accept-btn" onClick={() => handleAccept(apt.id)}>✓ Accept</button>
+                    )}
+                    {apt.status !== 'cancelled' && (
+                      <button className="doc-reschedule-btn" onClick={() => openReschedule(apt)}>📅 Reschedule</button>
+                    )}
+                    {apt.status === 'confirmed' && (
+                      <>
+                        <button className="doc-accept-btn" style={{ background: 'var(--success-bg)', color: '#059669' }} onClick={() => openPrescribe(apt)}>✍️ Prescribe</button>
+                        <button className="doc-accept-btn" style={{ background: 'rgba(99,102,241,0.1)', color: '#6366F1' }} onClick={() => openReferral(apt)}>🔀 Refer</button>
+                      </>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </>
         )}
       </div>
+
+      <BottomNav role="doctor" />
 
       {/* ── Reschedule Modal ── */}
       {rescheduleModal && (
@@ -247,6 +379,131 @@ function DoctorDashboard() {
                 disabled={rescheduling || !newDate || !newTime}
               >
                 {rescheduling ? 'Saving...' : 'Confirm Reschedule'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Prescribe Modal ── */}
+      {prescribeModal && (
+        <div className="doc-modal-overlay" onClick={() => setPrescribeModal(null)}>
+          <div className="doc-modal" onClick={(e) => e.stopPropagation()}>
+            <h2>Write Prescription</h2>
+            <p className="doc-modal-sub">
+              Patient: <strong>{prescribeModal.patientName}</strong>
+            </p>
+
+            <div className="doc-modal-field">
+              <label>Medication Name *</label>
+              <input
+                type="text"
+                value={prescriptionData.medicationName}
+                onChange={(e) => setPrescriptionData({ ...prescriptionData, medicationName: e.target.value })}
+                placeholder="e.g. Amoxicillin"
+              />
+            </div>
+            
+            <div className="doc-modal-field">
+              <label>Dosage *</label>
+              <input
+                type="text"
+                value={prescriptionData.dosage}
+                onChange={(e) => setPrescriptionData({ ...prescriptionData, dosage: e.target.value })}
+                placeholder="e.g. 500mg"
+              />
+            </div>
+
+            <div className="doc-modal-field">
+              <label>Frequency *</label>
+              <input
+                type="text"
+                value={prescriptionData.frequency}
+                onChange={(e) => setPrescriptionData({ ...prescriptionData, frequency: e.target.value })}
+                placeholder="e.g. Twice a day after meals"
+              />
+            </div>
+
+            <div className="doc-modal-field" style={{ display: 'flex', gap: '1rem' }}>
+              <div style={{ flex: 1 }}>
+                <label>Start Date *</label>
+                <input
+                  type="date"
+                  value={prescriptionData.startDate}
+                  onChange={(e) => setPrescriptionData({ ...prescriptionData, startDate: e.target.value })}
+                />
+              </div>
+              <div style={{ flex: 1 }}>
+                <label>End Date</label>
+                <input
+                  type="date"
+                  value={prescriptionData.endDate}
+                  onChange={(e) => setPrescriptionData({ ...prescriptionData, endDate: e.target.value })}
+                />
+              </div>
+            </div>
+
+            <div className="doc-modal-actions">
+              <button className="doc-modal-cancel" onClick={() => setPrescribeModal(null)}>
+                Cancel
+              </button>
+              <button
+                className="doc-modal-submit"
+                onClick={handlePrescribe}
+                disabled={prescribing || !prescriptionData.medicationName || !prescriptionData.dosage || !prescriptionData.frequency || !prescriptionData.startDate}
+              >
+                {prescribing ? 'Sending...' : 'Issue & Email Prescription'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Referral Modal ── */}
+      {referralModal && (
+        <div className="doc-modal-overlay" onClick={() => setReferralModal(null)}>
+          <div className="doc-modal" onClick={(e) => e.stopPropagation()}>
+            <h2>🔀 Refer to Specialist</h2>
+            <p className="doc-modal-sub">
+              Patient: <strong>{referralModal.patientName}</strong>
+            </p>
+
+            <div className="doc-modal-field">
+              <label>Select Specialist *</label>
+              <select
+                value={referralData.referredToDocId}
+                onChange={(e) => setReferralData({ ...referralData, referredToDocId: e.target.value })}
+                style={{ width: '100%', padding: '0.6rem', borderRadius: '6px', border: '1px solid #d1d5db' }}
+              >
+                <option value="">-- Choose a specialist --</option>
+                {availableDoctors.map(doc => (
+                  <option key={doc.id} value={doc.id}>
+                    {doc.fullName} {doc.specialty ? `— ${doc.specialty}` : ''}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="doc-modal-field">
+              <label>Referral Notes *</label>
+              <textarea
+                rows={3}
+                placeholder="Reason for referral, relevant history..."
+                value={referralData.notes}
+                onChange={(e) => setReferralData({ ...referralData, notes: e.target.value })}
+                style={{ width: '100%', padding: '0.6rem', borderRadius: '6px', border: '1px solid #d1d5db', resize: 'vertical', boxSizing: 'border-box' }}
+              />
+            </div>
+
+            <div className="doc-modal-actions">
+              <button className="doc-modal-cancel" onClick={() => setReferralModal(null)}>Cancel</button>
+              <button
+                className="doc-modal-submit"
+                style={{ backgroundColor: '#6366F1' }}
+                onClick={handleReferral}
+                disabled={referring || !referralData.referredToDocId || !referralData.notes.trim()}
+              >
+                {referring ? 'Sending...' : 'Send Referral'}
               </button>
             </div>
           </div>
