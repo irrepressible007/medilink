@@ -31,73 +31,103 @@
   font-size: 1rem;
 }
 
-/* ── Hub Grid ── */
-.discovery-grid {
-  display: grid;
-  grid-template-columns: 1fr;
+/* ── Hub Grid (new layout) ── */
+.discovery-hub-grid {
+  display: flex;
+  flex-direction: column;
   gap: 1rem;
 }
 
-.discovery-card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  padding: 1.5rem;
-  text-decoration: none;
+.discovery-hub-card {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  text-align: center;
-  box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
-  transition: transform 0.2s, box-shadow 0.2s;
+  gap: 1.25rem;
+  padding: 1.5rem;
+  border-radius: 18px;
+  border-width: 1px;
+  border-style: solid;
+  text-decoration: none;
   color: inherit;
+  transition: transform 0.2s, box-shadow 0.2s;
+  position: relative;
+  overflow: hidden;
 }
 
-.discovery-card:active {
-  transform: scale(0.98);
-}
+.discovery-hub-card:active { transform: scale(0.98); }
 
-.discovery-card-icon {
-  font-size: 3rem;
-  margin-bottom: 1rem;
-  background: linear-gradient(135deg, rgba(30,64,175,0.1), rgba(0,191,165,0.1));
-  width: 80px;
-  height: 80px;
+.discovery-hub-icon {
+  width: 64px;
+  height: 64px;
+  border-radius: 16px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 50%;
+  font-size: 2rem;
+  flex-shrink: 0;
 }
 
-.discovery-card h2 {
-  font-size: 1.25rem;
-  margin: 0 0 0.5rem 0;
+.discovery-hub-content {
+  flex: 1;
+}
+
+.discovery-hub-badge {
+  display: inline-block;
+  font-size: 0.7rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
   color: var(--primary);
-  font-weight: 700;
+  background: rgba(0,191,165,0.08);
+  padding: 2px 8px;
+  border-radius: 99px;
+  margin-bottom: 0.4rem;
 }
 
-.discovery-card p {
-  margin: 0;
-  font-size: 0.9rem;
+.discovery-hub-content h2 {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--text);
+  margin: 0 0 0.3rem 0;
+}
+
+.discovery-hub-content p {
+  font-size: 0.88rem;
   color: var(--text-muted);
+  margin: 0;
+  line-height: 1.5;
 }
 
-/* Tablets and Up */
+.discovery-hub-arrow {
+  font-size: 1.5rem;
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
 @media (min-width: 600px) {
-  .discovery-grid {
+  .discovery-hub-grid {
+    display: grid;
     grid-template-columns: repeat(2, 1fr);
   }
 }
 
 @media (min-width: 900px) {
-  .discovery-grid {
+  .discovery-hub-grid {
     grid-template-columns: repeat(3, 1fr);
   }
-  .discovery-card:hover {
+  .discovery-hub-card:hover {
     transform: translateY(-4px);
-    box-shadow: 0 10px 20px -5px rgba(0,0,0,0.1);
+    box-shadow: 0 12px 24px rgba(0,0,0,0.12);
   }
 }
+
+/* keep old discovery-card for compat */
+.discovery-grid { display: grid; grid-template-columns: 1fr; gap: 1rem; }
+.discovery-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 1.5rem; text-decoration: none; display: flex; flex-direction: column; align-items: center; text-align: center; transition: transform 0.2s; color: inherit; }
+.discovery-card-icon { font-size: 2.5rem; margin-bottom: 1rem; }
+.discovery-card h2 { font-size: 1.15rem; margin: 0 0 0.4rem; color: var(--primary); font-weight: 700; }
+.discovery-card p { margin: 0; font-size: 0.9rem; color: var(--text-muted); }
+@media (min-width: 600px) { .discovery-grid { grid-template-columns: repeat(2,1fr); } }
+
 
 /* ── Directory Utility Classes (Filters & Search) ── */
 .dir-toolbar {
