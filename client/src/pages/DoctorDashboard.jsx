@@ -534,6 +534,8 @@ function DoctorDashboard() {
             </div>
           </>
         )}
+        </>
+      )}
 
         {/* ── Follow-Up Queue Tab ── */}
         {activeTab === 'followUps' && (
