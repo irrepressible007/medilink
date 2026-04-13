@@ -509,6 +509,15 @@
 }
 @media (max-width: 600px) {
   .landing-nav-links { display: none; }
+  .landing-nav-inner { gap: 0.5rem; }
+  .landing-nav-cta { gap: 0.5rem; }
+  .landing-btn-ghost, .landing-btn-primary { 
+    padding: 0.5rem 1rem; 
+    font-size: 0.85rem; 
+    white-space: nowrap;
+  }
+  .landing-logo { font-size: 1.2rem; }
+  
   .landing-stats { grid-template-columns: 1fr; }
   .landing-cta-banner { margin: 4rem 1rem; padding: 3rem 1.5rem; }
   .section-header { margin-bottom: 2.5rem; }
