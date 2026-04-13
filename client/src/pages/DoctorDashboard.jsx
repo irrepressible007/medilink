@@ -408,26 +408,26 @@ function DoctorDashboard() {
         </div>
       </div>
       <div className="doctor-content">
-        <div style={{ display: 'flex', gap: '1rem', marginBottom: '2rem', borderBottom: '1px solid var(--border)' }}>
-          <button 
-            style={{ padding: '0.75rem 1rem', background: 'none', border: 'none', borderBottom: activeTab === 'appointments' ? '2px solid var(--primary)' : '2px solid transparent', color: activeTab === 'appointments' ? 'var(--primary)' : 'var(--text-muted)', fontWeight: 600, cursor: 'pointer' }}
+        <div className="doctor-tabs">
+          <button
+            className={`doctor-tab-btn ${activeTab === 'appointments' ? 'active' : ''}`}
             onClick={() => setActiveTab('appointments')}
           >
             Appointments
           </button>
-          <button 
-            style={{ padding: '0.75rem 1rem', background: 'none', border: 'none', borderBottom: activeTab === 'followUps' ? '2px solid var(--primary)' : '2px solid transparent', color: activeTab === 'followUps' ? 'var(--primary)' : 'var(--text-muted)', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}
+          <button
+            className={`doctor-tab-btn ${activeTab === 'followUps' ? 'active' : ''}`}
             onClick={() => setActiveTab('followUps')}
           >
-            Follow-Up Queue 
+            Follow-Up Queue
             {followUps.filter(f => f.status === 'pending').length > 0 && (
-              <span style={{ background: 'var(--error)', color: 'white', padding: '2px 8px', borderRadius: '12px', fontSize: '0.75rem' }}>
+              <span style={{ background: 'var(--error)', color: 'white', padding: '2px 8px', borderRadius: '12px', fontSize: '0.7rem', marginLeft: '6px' }}>
                 {followUps.filter(f => f.status === 'pending').length}
               </span>
             )}
           </button>
-          <button 
-            style={{ padding: '0.75rem 1rem', background: 'none', border: 'none', borderBottom: activeTab === 'availability' ? '2px solid var(--primary)' : '2px solid transparent', color: activeTab === 'availability' ? 'var(--primary)' : 'var(--text-muted)', fontWeight: 600, cursor: 'pointer' }}
+          <button
+            className={`doctor-tab-btn ${activeTab === 'availability' ? 'active' : ''}`}
             onClick={() => setActiveTab('availability')}
           >
             🗓️ Availability
@@ -589,16 +589,18 @@ function DoctorDashboard() {
               
               <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                 {DAYS.map(day => (
-                  <div key={day} style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '1rem', background: workingHours[day].off ? 'var(--bg-main)' : 'var(--surface)', borderRadius: '8px', border: '1px solid var(--border)', color: workingHours[day].off ? 'var(--text-muted)' : 'var(--text)' }}>
-                    <div style={{ width: '100px', fontWeight: 600, textTransform: 'capitalize' }}>
-                      {day}
-                    </div>
+                  <div
+                    key={day}
+                    className="avail-day-row"
+                    style={{ background: workingHours[day].off ? 'var(--bg-main)' : 'var(--surface)', color: workingHours[day].off ? 'var(--text-muted)' : 'var(--text)' }}
+                  >
+                    <div className="avail-day-name">{day}</div>
                     <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
                       <input type="checkbox" checked={workingHours[day].off} onChange={() => toggleDayOff(day)} />
                       <span style={{ fontSize: '0.9rem' }}>Off</span>
                     </label>
                     {!workingHours[day].off && (
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginLeft: 'auto' }}>
+                      <div className="avail-times">
                         <input type="time" value={workingHours[day].start} onChange={(e) => handleTimeChange(day, 'start', e.target.value)} style={{ padding: '0.4rem', borderRadius: '6px', border: '1px solid var(--border)' }} />
                         <span>-</span>
                         <input type="time" value={workingHours[day].end} onChange={(e) => handleTimeChange(day, 'end', e.target.value)} style={{ padding: '0.4rem', borderRadius: '6px', border: '1px solid var(--border)' }} />

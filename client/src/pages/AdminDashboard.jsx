@@ -46,7 +46,7 @@ function AdminDashboard() {
       })
       const data = await res.json()
       if (data.emergencies) setEmergencies(data.emergencies)
-    } catch {}
+    } catch { }
   }
 
   const fetchStats = async () => {
@@ -64,7 +64,7 @@ function AdminDashboard() {
       const docRes = await fetch(`${API_BASE_URL}/doctors`)
       const docData = await docRes.json()
       setActiveDoctors(docData.doctors || [])
-    } catch {}
+    } catch { }
   }
 
   const handleResolveEmergency = async (id) => {
@@ -183,7 +183,7 @@ function AdminDashboard() {
                       <strong style={{ color: 'var(--text)' }}>Patient SOS</strong>
                       <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Cord: [{em.latitude.toFixed(4)}, {em.longitude.toFixed(4)}] • {new Date(em.createdAt).toLocaleTimeString()}</div>
                     </div>
-                    <button 
+                    <button
                       onClick={() => handleResolveEmergency(em.id)}
                       style={{ background: '#10B981', color: 'white', border: 'none', padding: '0.5rem 1rem', borderRadius: '6px', fontWeight: 600, cursor: 'pointer' }}>
                       ✓ Acknowledge & Resolve
@@ -203,29 +203,29 @@ function AdminDashboard() {
                 <div style={{ padding: '1rem 1.25rem', borderBottom: '1px solid var(--border)', fontWeight: 700, fontSize: '0.95rem', color: 'var(--text)' }}>
                   🧑 Recently Registered Patients ({recentPatients.length})
                 </div>
-              <div style={{ overflow: 'auto' }}>
-                <table className="appointments-table" style={{ minWidth: 400 }}>
-                  <thead>
-                    <tr>
-                      <th>Patient Name</th>
-                      <th>Email</th>
-                      <th>Joined</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {recentPatients.map(p => (
-                      <tr key={p.id}>
-                        <td><strong>{p.fullName}</strong></td>
-                        <td style={{ color: 'var(--text-muted)' }}>{p.email}</td>
-                        <td style={{ color: 'var(--text-muted)', fontSize: '0.8rem' }}>{new Date(p.createdAt).toLocaleDateString()}</td>
+                <div style={{ overflow: 'auto' }}>
+                  <table className="appointments-table" style={{ minWidth: 400 }}>
+                    <thead>
+                      <tr>
+                        <th>Patient Name</th>
+                        <th>Email</th>
+                        <th>Joined</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody>
+                      {recentPatients.map(p => (
+                        <tr key={p.id}>
+                          <td><strong>{p.fullName}</strong></td>
+                          <td style={{ color: 'var(--text-muted)' }}>{p.email}</td>
+                          <td style={{ color: 'var(--text-muted)', fontSize: '0.8rem' }}>{new Date(p.createdAt).toLocaleDateString()}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               </div>
-            </div>
             )}
-            
+
             {/* ── Active Doctors ── */}
             {activeDoctors.length > 0 && (
               <div className="ml-card ml-fade-up" style={{ padding: 0, overflow: 'hidden' }}>
