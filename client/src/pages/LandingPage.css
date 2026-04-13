@@ -95,16 +95,16 @@
 
 /* ── Hero ── */
 .landing-hero {
-  min-height: 105vh;
+  min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: space-between;
   max-width: 1200px;
   margin: 0 auto;
-  padding: 120px 1.5rem 4rem;
+  padding: 120px 2rem 5rem;
   position: relative;
-  overflow: visible;
-  gap: 2rem;
+  overflow: hidden;
+  gap: 3rem;
 }
 
 .landing-hero-overlay {
@@ -214,32 +214,36 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 600px;
+  min-height: 520px;
+  max-width: 480px;
+  flex-shrink: 0;
   animation: fadeUp 1.2s ease-out;
 }
 .hero-glass-card {
   position: absolute;
-  background: rgba(20, 25, 40, 0.6);
+  background: rgba(20, 25, 40, 0.85);
   backdrop-filter: blur(24px);
-  border: 1px solid rgba(255,255,255,0.1);
-  border-radius: 24px;
-  padding: 1.5rem;
-  box-shadow: 0 24px 50px rgba(0,0,0,0.5);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 20px;
+  padding: 1.25rem 1.5rem;
+  box-shadow: 0 16px 40px rgba(0,0,0,0.5);
   display: flex;
   align-items: center;
   gap: 1rem;
   transition: transform 0.3s;
   animation: float 6s ease-in-out infinite;
+  min-width: 220px;
 }
-.hero-glass-card:hover { transform: scale(1.05) !important; }
+.hero-glass-card:hover { transform: scale(1.04) !important; }
 
-.hc-1 { top: 10%; right: 10%; animation-delay: 0s; }
-.hc-2 { top: 45%; left: -5%; animation-delay: 2s; z-index: 2; padding: 2rem; }
-.hc-3 { bottom: 15%; right: 5%; animation-delay: 4s; }
+/* Contained within the visuals box — no negative offsets */
+.hc-1 { top: 5%; right: 0; animation-delay: 0s; }
+.hc-2 { top: 38%; left: 0; animation-delay: 2s; z-index: 2; padding: 1.75rem; flex-direction: column; text-align: center; }
+.hc-3 { bottom: 8%; right: 4%; animation-delay: 4s; }
 
-.hc-icon { font-size: 2.5rem; background: rgba(255,255,255,0.05); padding: 1rem; border-radius: 16px; border: 1px solid rgba(255,255,255,0.05); }
-.hc-text h4 { margin: 0 0 0.25rem 0; font-size: 1.1rem; font-weight: 800; color: white; }
-.hc-text p { margin: 0; font-size: 0.85rem; color: rgba(255,255,255,0.6); }
+.hc-icon { font-size: 2rem; background: rgba(255,255,255,0.06); padding: 0.85rem; border-radius: 14px; border: 1px solid rgba(255,255,255,0.06); flex-shrink: 0; }
+.hc-text h4 { margin: 0 0 0.2rem 0; font-size: 1rem; font-weight: 800; color: white; white-space: nowrap; }
+.hc-text p { margin: 0; font-size: 0.8rem; color: rgba(255,255,255,0.65); }
 
 /* ── Stats ── */
 .landing-stats-wrapper {
@@ -296,23 +300,24 @@
 }
 .feature-card::before {
   content: ''; position: absolute; inset: 0;
-  background: radial-gradient(circle at 50% 0%, var(--accent-glow) 0%, transparent 70%);
+  background: radial-gradient(circle at 50% 0%, var(--accent-glow, rgba(96,165,250,0.2)) 0%, transparent 70%);
   opacity: 0; transition: opacity 0.4s; z-index: 0;
 }
-.feature-card:hover { transform: translateY(-10px); border-color: rgba(255,255,255,0.15); box-shadow: 0 20px 40px rgba(0,0,0,0.4); }
+.feature-card:hover { transform: translateY(-8px); border-color: rgba(255,255,255,0.15); box-shadow: 0 20px 40px rgba(0,0,0,0.4); }
 .feature-card:hover::before { opacity: 1; }
 
 .feature-icon-wrap {
-  width: 70px; height: 70px;
-  background: rgba(255,255,255,0.05);
-  border-radius: 20px;
+  width: 64px; height: 64px;
+  background: rgba(255,255,255,0.06);
+  border-radius: 18px;
   display: flex; align-items: center; justify-content: center;
-  font-size: 2rem; margin-bottom: 1.5rem;
-  border: 1px solid rgba(255,255,255,0.05);
+  font-size: 1.75rem; margin-bottom: 1.5rem;
+  border: 1px solid rgba(255,255,255,0.08);
   position: relative; z-index: 1;
 }
-.feature-card h3 { font-size: 1.4rem; font-weight: 800; margin-bottom: 1rem; position: relative; z-index: 1; }
-.feature-card p { font-size: 1rem; color: rgba(255,255,255,0.6); line-height: 1.6; position: relative; z-index: 1; }
+/* CRITICAL: force white text always — overrides any gradient bleed */
+.feature-card h3 { font-size: 1.25rem; font-weight: 800; margin-bottom: 0.75rem; position: relative; z-index: 2; color: #ffffff !important; }
+.feature-card p { font-size: 0.95rem; color: rgba(255,255,255,0.65); line-height: 1.65; position: relative; z-index: 2; }
 
 /* ── Pipeline / How It Works ── */
 .flow-section {
