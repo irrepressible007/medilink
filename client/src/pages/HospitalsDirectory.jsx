@@ -79,38 +79,27 @@ function HospitalsDirectory() {
         ) : (
           <div className="dir-list">
             {hospitals.map(h => (
-              <div key={h.id} className="dir-item-card">
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                  <div>
-                    <h2>{h.name}</h2>
-                    <div className="dir-item-meta">
-                      📍 {h.city} • 📞 {h.contactPhone || 'N/A'}
+              <Link to={`/discovery/hospitals/${h.id}`} key={h.id} style={{ textDecoration: 'none', color: 'inherit' }}>
+                <div className="dir-item-card" style={{ transition: 'transform 0.2s', cursor: 'pointer' }} onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-2px)'} onMouseLeave={(e) => e.currentTarget.style.transform = 'none'}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                    <div>
+                      <h2>{h.name}</h2>
+                      <div className="dir-item-meta">
+                        📍 {h.city} • 📞 {h.contactPhone || 'N/A'}
+                      </div>
                     </div>
+                    <span className="dir-item-badge">{h.hospitalServices?.length || 0} Services</span>
                   </div>
-                  <span className="dir-item-badge">{h.hospitalServices?.length || 0} Services Logged</span>
-                </div>
-                
-                <p style={{ color: 'var(--text-muted)', fontSize: '0.95rem', marginBottom: '1rem' }}>
-                  {h.description || h.address}
-                </p>
+                  
+                  <p style={{ color: 'var(--text-muted)', fontSize: '0.95rem', marginBottom: '1rem' }}>
+                    {h.description || h.address}
+                  </p>
 
-                {h.hospitalServices && h.hospitalServices.length > 0 && (
-                  <div className="dir-services-list">
-                    <h4 style={{ margin: '0 0 0.5rem 0', fontSize: '0.85rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Top Services & Prices</h4>
-                    {h.hospitalServices.slice(0, 3).map(hs => (
-                      <div key={hs.id} className="dir-srv-row">
-                        <span className="dir-srv-name">{hs.service.name}</span>
-                        <span className="dir-srv-price">৳ {hs.price}</span>
-                      </div>
-                    ))}
-                    {h.hospitalServices.length > 3 && (
-                      <div style={{ textAlign: 'center', marginTop: '0.5rem', fontSize: '0.85rem', color: 'var(--primary)', fontWeight: 600 }}>
-                        + {h.hospitalServices.length - 3} more services
-                      </div>
-                    )}
+                  <div style={{ textAlign: 'right', fontSize: '0.9rem', color: 'var(--primary)', fontWeight: 600 }}>
+                    View Profile & Services →
                   </div>
-                )}
-              </div>
+                </div>
+              </Link>
             ))}
           </div>
         )}

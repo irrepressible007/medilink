@@ -1,9 +1,13 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { API_BASE_URL } from '../config.js'
 import { Navbar, BottomNav } from '../components/Navbar.jsx'
 import './BookAppointment.css'
 
 function BookAppointment() {
+  const [searchParams] = useSearchParams()
+  const initialHospital = searchParams.get('hospital') || ''
+
   const [step, setStep] = useState(1)
   const [form, setForm] = useState({
     patientName: '',
@@ -11,8 +15,8 @@ function BookAppointment() {
     gender: '',
     contactNumber: '',
     email: '',
-    requestFor: '',
-    doctorOrService: '',
+    requestFor: initialHospital ? 'Hospital Inquiry' : '',
+    doctorOrService: initialHospital,
     appointmentDate: '',
     appointmentTime: '',
   })
@@ -21,7 +25,7 @@ function BookAppointment() {
   const [error, setError] = useState('')
 
   // ── Doctor search state ──
-  const [doctorSearch, setDoctorSearch] = useState('')
+  const [doctorSearch, setDoctorSearch] = useState(initialHospital)
   const [doctors, setDoctors] = useState([])
   const [selectedDocWH, setSelectedDocWH] = useState(null)
   const [showDropdown, setShowDropdown] = useState(false)

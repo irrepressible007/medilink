@@ -18,6 +18,7 @@ import DoctorSignupPage from './pages/DoctorSignupPage.jsx'
 import DoctorDashboard from './pages/DoctorDashboard.jsx'
 import DiscoveryHub from './pages/DiscoveryHub.jsx'
 import HospitalsDirectory from './pages/HospitalsDirectory.jsx'
+import HospitalDetails from './pages/HospitalDetails.jsx'
 import ServicesDirectory from './pages/ServicesDirectory.jsx'
 
 function App() {
@@ -36,6 +37,7 @@ function App() {
       <Route path="/blood-bank" element={<BloodBank />} />
       <Route path="/discovery" element={<DiscoveryHub />} />
       <Route path="/discovery/hospitals" element={<HospitalsDirectory />} />
+      <Route path="/discovery/hospitals/:id" element={<HospitalDetails />} />
       <Route path="/discovery/services" element={<ServicesDirectory />} />
 
       {/* Admin */}

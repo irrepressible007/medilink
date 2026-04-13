@@ -81,4 +81,33 @@ router.get('/services', async (req, res) => {
   }
 })
 
+// GET /api/directory/hospitals/:id
+router.get('/hospitals/:id', async (req, res) => {
+  try {
+    const { id } = req.params
+    const hospital = await prisma.hospital.findUnique({
+      where: { id },
+      include: {
+        hospitalServices: {
+          include: {
+            service: true
+          }
+        }
+      }
+    })
+
+    if (!hospital) {
+      return res.status(404).json({ message: 'Hospital not found' })
+    }
+
+    // Sort services alphabetically within the response
+    hospital.hospitalServices.sort((a, b) => a.service.name.localeCompare(b.service.name))
+
+    return res.json({ hospital })
+  } catch (error) {
+    logger.error('Fetch hospital by ID error:', error)
+    return res.status(500).json({ message: error?.message || 'Internal server error' })
+  }
+})
+
 export default router
