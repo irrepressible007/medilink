@@ -43,6 +43,22 @@ function DoctorDashboard() {
   const [uploadType, setUploadType] = useState('Lab Result')
   const [uploading, setUploading] = useState(false)
 
+  // Follow-Ups tab state
+  const [activeTab, setActiveTab] = useState('appointments')
+  const [followUps, setFollowUps] = useState([])
+  const [loadingFollowUps, setLoadingFollowUps] = useState(true)
+
+  // Availability / Working Hours state
+  const DAYS = ['monday','tuesday','wednesday','thursday','friday','saturday','sunday']
+  const defaultDay = { start: '09:00', end: '17:00', off: false }
+  const [workingHours, setWorkingHours] = useState(() => {
+    const saved = window.localStorage.getItem('medilink_doctor_wh')
+    if (saved) return JSON.parse(saved)
+    return DAYS.reduce((acc, d) => ({ ...acc, [d]: { ...defaultDay } }), {})
+  })
+  const [savingWH, setSavingWH] = useState(false)
+  const [whMsg, setWhMsg] = useState('')
+
   const token = window.localStorage.getItem('medilink_doctor_token')
   const doctorStr = window.localStorage.getItem('medilink_doctor')
   const currentDoctor = doctorStr ? JSON.parse(doctorStr) : null
@@ -67,8 +83,39 @@ function DoctorDashboard() {
     }
   }
 
+  const fetchFollowUps = async () => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/follow-ups/doctor`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      const data = await response.json()
+      if (!response.ok) throw new Error(data?.message || 'Failed to load follow-ups')
+      setFollowUps(data.followUps)
+    } catch (err) {
+      console.error(err)
+    } finally {
+      setLoadingFollowUps(false)
+    }
+  }
+
+  const fetchProfile = async () => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/profile`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      const data = await response.json()
+      if (data?.user?.workingHours) {
+        setWorkingHours(JSON.parse(data.user.workingHours))
+      }
+    } catch (err) {
+      console.error('Failed to load profile for working hours', err)
+    }
+  }
+
   useEffect(() => {
     fetchAppointments()
+    fetchFollowUps()
+    fetchProfile()
   }, [])
 
   // ── Accept appointment ──
@@ -87,6 +134,61 @@ function DoctorDashboard() {
       setAppointments((prev) =>
         prev.map((a) => (a.id === aptId ? { ...a, status: 'confirmed' } : a))
       )
+    } catch (err) {
+      setActionMsg({ text: err.message, type: 'error' })
+    }
+  }
+  // ── Availability Actions ──
+  const handleSaveWH = async () => {
+    setSavingWH(true)
+    setWhMsg('')
+    try {
+      const res = await fetch(`${API_BASE_URL}/profile`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ workingHours })
+      })
+      if (!res.ok) throw new Error('Failed to save settings')
+      window.localStorage.setItem('medilink_doctor_wh', JSON.stringify(workingHours))
+      setWhMsg('✅ Availability saved successfully!')
+      setTimeout(() => setWhMsg(''), 3000)
+    } catch (err) {
+      setWhMsg('❌ ' + err.message)
+    } finally {
+      setSavingWH(false)
+    }
+  }
+
+  const toggleDayOff = (day) => {
+    setWorkingHours(prev => ({
+      ...prev,
+      [day]: { ...prev[day], off: !prev[day].off }
+    }))
+  }
+
+  const handleTimeChange = (day, field, value) => {
+    setWorkingHours(prev => ({
+      ...prev,
+      [day]: { ...prev[day], [field]: value }
+    }))
+  }
+
+  // ── Follow-Up Action ──
+  const handleFollowUpAction = async (id, action) => {
+    try {
+      const res = await fetch(`${API_BASE_URL}/follow-ups/${id}/${action}`, {
+        method: 'PATCH',
+        headers: { Authorization: `Bearer ${token}` }
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.message)
+
+      setActionMsg({ text: `Follow-up request ${action}ed successfully!`, type: action === 'approve' ? 'success' : 'error' })
+      setFollowUps(prev => prev.map(f => f.id === id ? { ...f, status: action === 'approve' ? 'approved' : 'rejected' } : f))
+      if (action === 'approve') fetchAppointments()
     } catch (err) {
       setActionMsg({ text: err.message, type: 'error' })
     }
@@ -306,6 +408,32 @@ function DoctorDashboard() {
         </div>
       </div>
       <div className="doctor-content">
+        <div style={{ display: 'flex', gap: '1rem', marginBottom: '2rem', borderBottom: '1px solid var(--border)' }}>
+          <button 
+            style={{ padding: '0.75rem 1rem', background: 'none', border: 'none', borderBottom: activeTab === 'appointments' ? '2px solid var(--primary)' : '2px solid transparent', color: activeTab === 'appointments' ? 'var(--primary)' : 'var(--text-muted)', fontWeight: 600, cursor: 'pointer' }}
+            onClick={() => setActiveTab('appointments')}
+          >
+            Appointments
+          </button>
+          <button 
+            style={{ padding: '0.75rem 1rem', background: 'none', border: 'none', borderBottom: activeTab === 'followUps' ? '2px solid var(--primary)' : '2px solid transparent', color: activeTab === 'followUps' ? 'var(--primary)' : 'var(--text-muted)', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}
+            onClick={() => setActiveTab('followUps')}
+          >
+            Follow-Up Queue 
+            {followUps.filter(f => f.status === 'pending').length > 0 && (
+              <span style={{ background: 'var(--error)', color: 'white', padding: '2px 8px', borderRadius: '12px', fontSize: '0.75rem' }}>
+                {followUps.filter(f => f.status === 'pending').length}
+              </span>
+            )}
+          </button>
+          <button 
+            style={{ padding: '0.75rem 1rem', background: 'none', border: 'none', borderBottom: activeTab === 'availability' ? '2px solid var(--primary)' : '2px solid transparent', color: activeTab === 'availability' ? 'var(--primary)' : 'var(--text-muted)', fontWeight: 600, cursor: 'pointer' }}
+            onClick={() => setActiveTab('availability')}
+          >
+            🗓️ Availability
+          </button>
+        </div>
+
         {actionMsg.text && (
           <div className={`doc-action-msg ${actionMsg.type}`}>
             {actionMsg.type === 'success' ? '✅ ' : '⚠️ '}
@@ -313,7 +441,9 @@ function DoctorDashboard() {
           </div>
         )}
 
-        {loading && <p style={{ color: 'var(--text-muted)' }}>Loading appointments…</p>}
+        {activeTab === 'appointments' && (
+          <>
+            {loading && <p style={{ color: 'var(--text-muted)' }}>Loading appointments…</p>}
         {error && <p className="doctor-signup-error" style={{ maxWidth: 600 }}>{error}</p>}
 
         {!loading && !error && appointments.length === 0 && (
@@ -403,6 +533,87 @@ function DoctorDashboard() {
               ))}
             </div>
           </>
+        )}
+
+        {/* ── Follow-Up Queue Tab ── */}
+        {activeTab === 'followUps' && (
+          <>
+            {loadingFollowUps && <p style={{ color: 'var(--text-muted)' }}>Loading follow-ups…</p>}
+            {!loadingFollowUps && followUps.length === 0 && (
+              <p style={{ color: 'var(--text-muted)' }}>No follow-up requests in queue.</p>
+            )}
+            {!loadingFollowUps && followUps.length > 0 && (
+              <div style={{ display: 'grid', gap: '1rem', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))' }}>
+                {followUps.map(f => (
+                  <div key={f.id} style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '12px', padding: '1.5rem', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05)' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                      <h3 style={{ margin: 0, fontSize: '1.1rem' }}>{f.patient?.fullName || 'Patient'}</h3>
+                      <span className={`status-badge status-${f.status}`}>{f.status}</span>
+                    </div>
+                    <p style={{ margin: '0 0 0.5rem 0', fontSize: '0.9rem', color: 'var(--text-muted)' }}>
+                      <strong>Original:</strong> {f.appointment?.appointmentDate} at {f.appointment?.appointmentTime}
+                    </p>
+                    <p style={{ margin: '0 0 0.5rem 0', fontSize: '0.9rem', color: 'var(--text-muted)' }}>
+                      <strong>Preferred:</strong> {f.preferredDate ? `${f.preferredDate} at ${f.preferredTime}` : 'Anytime'}
+                    </p>
+                    <div style={{ background: 'var(--bg-main)', padding: '0.75rem', borderRadius: '8px', fontSize: '0.9rem', margin: '1rem 0' }}>
+                      <strong style={{ display: 'block', marginBottom: '0.25rem' }}>Reason for Follow-Up:</strong>
+                      {f.reason}
+                    </div>
+
+                    {f.status === 'pending' && (
+                      <div style={{ display: 'flex', gap: '0.5rem', marginTop: '1rem' }}>
+                        <button className="doc-accept-btn" onClick={() => handleFollowUpAction(f.id, 'approve')} style={{ flex: 1 }}>
+                          ✓ Approve
+                        </button>
+                        <button className="doc-reschedule-btn" onClick={() => handleFollowUpAction(f.id, 'reject')} style={{ flex: 1, color: 'var(--error)', background: 'var(--error-glow)' }}>
+                          ✕ Reject
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+          </>
+        )}
+
+        {/* ── Availability Tab ── */}
+        {activeTab === 'availability' && (
+          <div style={{ maxWidth: '600px' }}>
+            <div style={{ background: 'var(--surface)', padding: '2rem', borderRadius: '12px', border: '1px solid var(--border)' }}>
+              <h2 style={{ margin: '0 0 1rem 0' }}>Working Hours</h2>
+              <p style={{ color: 'var(--text-muted)', marginBottom: '2rem' }}>Define your exact shift times. Patients will only be able to book 30-minute slots within these windows.</p>
+              
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                {DAYS.map(day => (
+                  <div key={day} style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '1rem', background: workingHours[day].off ? 'var(--bg-main)' : 'var(--surface)', borderRadius: '8px', border: '1px solid var(--border)', color: workingHours[day].off ? 'var(--text-muted)' : 'var(--text)' }}>
+                    <div style={{ width: '100px', fontWeight: 600, textTransform: 'capitalize' }}>
+                      {day}
+                    </div>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
+                      <input type="checkbox" checked={workingHours[day].off} onChange={() => toggleDayOff(day)} />
+                      <span style={{ fontSize: '0.9rem' }}>Off</span>
+                    </label>
+                    {!workingHours[day].off && (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginLeft: 'auto' }}>
+                        <input type="time" value={workingHours[day].start} onChange={(e) => handleTimeChange(day, 'start', e.target.value)} style={{ padding: '0.4rem', borderRadius: '6px', border: '1px solid var(--border)' }} />
+                        <span>-</span>
+                        <input type="time" value={workingHours[day].end} onChange={(e) => handleTimeChange(day, 'end', e.target.value)} style={{ padding: '0.4rem', borderRadius: '6px', border: '1px solid var(--border)' }} />
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+
+              <div style={{ marginTop: '2rem', display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                <button onClick={handleSaveWH} disabled={savingWH} className="doc-accept-btn" style={{ background: 'linear-gradient(135deg, #1E40AF, #0057B7)', color: 'white', padding: '0.75rem 2rem', border: 'none', cursor: 'pointer', borderRadius: '8px' }}>
+                  {savingWH ? 'Saving...' : 'Save Schedule'}
+                </button>
+                {whMsg && <span style={{ fontWeight: 500, color: whMsg.startsWith('✅') ? '#059669' : 'var(--error)' }}>{whMsg}</span>}
+              </div>
+            </div>
+          </div>
         )}
       </div>
 

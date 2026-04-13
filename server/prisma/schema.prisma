@@ -27,6 +27,7 @@ model User {
   allergies        String?
   emergencyContact String?
   avatarUrl        String?
+  workingHours     String?           // JSON: { monday: {start, end, off}, ... }
   createdAt        DateTime          @default(now())
   appointments     Appointment[]
   followUpRequests FollowUpRequest[]

@@ -26,6 +26,7 @@ router.get('/', async (req, res) => {
         emergencyContact: true,
         avatarUrl: true,
         createdAt: true,
+        workingHours: true,
       }
     })
     if (!user) return res.status(404).json({ message: 'User not found' })
@@ -39,7 +40,7 @@ router.get('/', async (req, res) => {
 // PUT /api/profile — update current user's profile
 router.put('/', async (req, res) => {
   try {
-    const { fullName, phone, dateOfBirth, bloodGroup, allergies, emergencyContact } = req.body
+    const { fullName, phone, dateOfBirth, bloodGroup, allergies, emergencyContact, workingHours } = req.body
 
     const updated = await prisma.user.update({
       where: { id: req.user.userId },
@@ -50,11 +51,13 @@ router.put('/', async (req, res) => {
         ...(bloodGroup !== undefined && { bloodGroup }),
         ...(allergies !== undefined && { allergies }),
         ...(emergencyContact !== undefined && { emergencyContact }),
+        ...(workingHours !== undefined && { workingHours: JSON.stringify(workingHours) }),
       },
       select: {
         id: true, fullName: true, email: true, phone: true,
         role: true, specialty: true, dateOfBirth: true,
-        bloodGroup: true, allergies: true, emergencyContact: true, avatarUrl: true
+        bloodGroup: true, allergies: true, emergencyContact: true, avatarUrl: true,
+        workingHours: true
       }
     })
 
