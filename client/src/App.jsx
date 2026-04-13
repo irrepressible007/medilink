@@ -16,6 +16,9 @@ import AdminDashboard from './pages/AdminDashboard.jsx'
 import DoctorLoginPage from './pages/DoctorLoginPage.jsx'
 import DoctorSignupPage from './pages/DoctorSignupPage.jsx'
 import DoctorDashboard from './pages/DoctorDashboard.jsx'
+import DiscoveryHub from './pages/DiscoveryHub.jsx'
+import HospitalsDirectory from './pages/HospitalsDirectory.jsx'
+import ServicesDirectory from './pages/ServicesDirectory.jsx'
 
 function App() {
   return (
@@ -31,6 +34,9 @@ function App() {
       <Route path="/messages" element={<Messages />} />
       <Route path="/schedule" element={<MySchedule />} />
       <Route path="/blood-bank" element={<BloodBank />} />
+      <Route path="/discovery" element={<DiscoveryHub />} />
+      <Route path="/discovery/hospitals" element={<HospitalsDirectory />} />
+      <Route path="/discovery/services" element={<ServicesDirectory />} />
 
       {/* Admin */}
       <Route path="/admin" element={<AdminLoginPage />} />

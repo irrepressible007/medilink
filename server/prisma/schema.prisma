@@ -189,3 +189,40 @@ model BloodRequest {
   status        String   @default("open")
   createdAt     DateTime @default(now())
 }
+
+model Hospital {
+  id               String            @id @default(auto()) @map("_id") @db.ObjectId
+  name             String
+  city             String
+  address          String?
+  contactPhone     String?
+  contactEmail     String?
+  imageUrl         String?
+  description      String?
+  createdAt        DateTime          @default(now())
+
+  hospitalServices HospitalService[]
+}
+
+model Service {
+  id               String            @id @default(auto()) @map("_id") @db.ObjectId
+  name             String
+  type             String            // "TEST" or "OPERATION"
+  description      String?
+  basePrice        Float?
+  createdAt        DateTime          @default(now())
+
+  hospitalServices HospitalService[]
+}
+
+model HospitalService {
+  id               String            @id @default(auto()) @map("_id") @db.ObjectId
+  price            Float?
+  available        Boolean           @default(true)
+  
+  hospitalId       String            @db.ObjectId
+  hospital         Hospital          @relation(fields: [hospitalId], references: [id])
+  
+  serviceId        String            @db.ObjectId
+  service          Service           @relation(fields: [serviceId], references: [id])
+}

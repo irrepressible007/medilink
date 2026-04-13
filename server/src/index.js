@@ -17,6 +17,7 @@ import referralsRouter from './routes/referrals.js'
 import bloodRouter from './routes/blood.js'
 import aiRouter from './routes/ai.js'
 import profileRouter from './routes/profile.js'
+import directoryRouter from './routes/directory.js'
 import { startScheduler } from './services/scheduler.js'
 import { createServer } from 'http'
 import { Server } from 'socket.io'
@@ -83,6 +84,7 @@ app.use('/api/referrals', referralsRouter)
 app.use('/api/blood', bloodRouter)
 app.use('/api/ai', aiRouter)
 app.use('/api/profile', profileRouter)
+app.use('/api/directory', directoryRouter)
 
 // ── Socket.io JWT Authentication Middleware ──
 io.use((socket, next) => {

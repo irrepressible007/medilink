@@ -17,13 +17,12 @@ export function Navbar({ role = 'patient' }) {
         {/* Desktop links */}
         <nav className="ml-navbar-links">
           {role === 'patient' && (
-            <>
               <Link to="/dashboard" className="ml-navbar-link">Home</Link>
+              <Link to="/discovery" className="ml-navbar-link">Directory</Link>
               <Link to="/appointments" className="ml-navbar-link">Book</Link>
               <Link to="/consultation-history" className="ml-navbar-link">History</Link>
               <Link to="/records" className="ml-navbar-link">Records</Link>
               <Link to="/messages" className="ml-navbar-link">Messages</Link>
-              <Link to="/blood-bank" className="ml-navbar-link">Blood Bank</Link>
               <Link to="/profile" className="ml-navbar-link">Profile</Link>
             </>
           )}
@@ -66,9 +65,9 @@ export function Navbar({ role = 'patient' }) {
 /* ── Bottom Tab Bar (mobile only ≤768px) ── */
 const patientTabs = [
   { to: '/dashboard',            icon: '🏠', label: 'Home'     },
+  { to: '/discovery',            icon: '🔍', label: 'Discovery'},
   { to: '/appointments',         icon: '📅', label: 'Book'     },
   { to: '/messages',             icon: '💬', label: 'Messages' },
-  { to: '/blood-bank',           icon: '🩸', label: 'Blood'    },
   { to: '/profile',              icon: '👤', label: 'Profile'  },
 ]
 
