@@ -40,11 +40,11 @@ function DoctorLoginPage() {
   return (
     <div className="auth-page">
       <div className="auth-card ml-fade-up">
-        <div className="auth-brand">
+        <Link to="/" className="auth-brand" style={{ textDecoration: 'none' }}>
           <div className="auth-brand-mark" style={{ background: 'linear-gradient(135deg, #1E40AF, #0057B7)' }}>👨‍⚕️</div>
           <span className="auth-brand-name">MediLink</span>
           <span className="auth-brand-tagline">Doctor Portal</span>
-        </div>
+        </Link>
 
         <h1 className="auth-heading">Doctor Sign In</h1>
 

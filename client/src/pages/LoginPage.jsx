@@ -42,11 +42,11 @@ function LoginPage() {
     <div className="auth-page">
       <div className="auth-card ml-fade-up">
         {/* Brand */}
-        <div className="auth-brand">
+        <Link to="/" className="auth-brand" style={{ textDecoration: 'none' }}>
           <div className="auth-brand-mark">⚕️</div>
           <span className="auth-brand-name">MediLink</span>
           <span className="auth-brand-tagline">Your Health, Connected</span>
-        </div>
+        </Link>
 
         <h1 className="auth-heading">Welcome back</h1>
 

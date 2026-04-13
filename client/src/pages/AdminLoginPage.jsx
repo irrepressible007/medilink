@@ -44,11 +44,11 @@ function AdminLoginPage() {
   return (
     <div className="auth-page">
       <div className="auth-card ml-fade-up">
-        <div className="auth-brand">
-          <div className="auth-brand-mark" style={{ background: 'var(--text)' }}>🛡️</div>
-          <span className="auth-brand-name">MediLink</span>
+        <Link to="/" className="auth-brand" style={{ textDecoration: 'none' }}>
+          <div className="auth-brand-mark" style={{ background: 'linear-gradient(135deg, #0f172a, #334155)', color: 'white' }}>🛡️</div>
+          <span className="auth-brand-name" style={{ backgroundImage: 'linear-gradient(135deg, #334155, #0f172a)' }}>MediLink</span>
           <span className="auth-brand-tagline">Admin Portal</span>
-        </div>
+        </Link>
 
         <h1 className="auth-heading">System Administrator</h1>
 
