@@ -28,6 +28,7 @@ function AdminDashboard() {
   const [emergencies, setEmergencies] = useState([])
   const [stats, setStats] = useState(null)
   const [recentPatients, setRecentPatients] = useState([])
+  const [activeDoctors, setActiveDoctors] = useState([])
 
   const token = localStorage.getItem('medilink_admin_token')
 
@@ -58,7 +59,26 @@ function AdminDashboard() {
         setStats(data.stats)
         setRecentPatients(data.recentPatients || [])
       }
+
+      // Fetch doctors as well
+      const docRes = await fetch(`${API_BASE_URL}/doctors`)
+      const docData = await docRes.json()
+      setActiveDoctors(docData.doctors || [])
     } catch {}
+  }
+
+  const handleResolveEmergency = async (id) => {
+    try {
+      const res = await fetch(`${API_BASE_URL}/emergency/${id}/resolve`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` }
+      })
+      if (res.ok) {
+        fetchEmergencies() // Refresh active list
+      }
+    } catch (err) {
+      console.error('Failed to resolve', err)
+    }
   }
 
   const handleChange = (e) => {
@@ -151,15 +171,38 @@ function AdminDashboard() {
               ))}
             </MapContainer>
           </div>
+
+          {/* Emergency List View below map */}
+          {emergencies.length > 0 && (
+            <div style={{ padding: '1rem', background: 'var(--surface)', borderTop: '1px solid var(--border)' }}>
+              <h4 style={{ margin: '0 0 1rem 0', color: '#DC2626' }}>Requires Immediate Dispatch:</h4>
+              <div style={{ display: 'grid', gap: '0.5rem' }}>
+                {emergencies.map(em => (
+                  <div key={em.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(220,38,38,0.05)', padding: '1rem', borderRadius: '8px', border: '1px solid rgba(220,38,38,0.2)' }}>
+                    <div>
+                      <strong style={{ color: 'var(--text)' }}>Patient SOS</strong>
+                      <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Cord: [{em.latitude.toFixed(4)}, {em.longitude.toFixed(4)}] • {new Date(em.createdAt).toLocaleTimeString()}</div>
+                    </div>
+                    <button 
+                      onClick={() => handleResolveEmergency(em.id)}
+                      style={{ background: '#10B981', color: 'white', border: 'none', padding: '0.5rem 1rem', borderRadius: '6px', fontWeight: 600, cursor: 'pointer' }}>
+                      ✓ Acknowledge & Resolve
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', flexWrap: 'wrap' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: showForm ? '1fr' : '1fr 1fr', gap: '1.5rem', flexWrap: 'wrap' }}>
           {/* ── Recent Patients ── */}
-          {recentPatients.length > 0 && (
-            <div className="ml-card ml-fade-up" style={{ padding: 0, overflow: 'hidden', gridColumn: showForm ? '1' : 'span 2' }}>
-              <div style={{ padding: '1rem 1.25rem', borderBottom: '1px solid var(--border)', fontWeight: 700, fontSize: '0.95rem', color: 'var(--text)' }}>
-                🧑 Recently Registered Patients ({recentPatients.length})
-              </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+            {recentPatients.length > 0 && (
+              <div className="ml-card ml-fade-up" style={{ padding: 0, overflow: 'hidden' }}>
+                <div style={{ padding: '1rem 1.25rem', borderBottom: '1px solid var(--border)', fontWeight: 700, fontSize: '0.95rem', color: 'var(--text)' }}>
+                  🧑 Recently Registered Patients ({recentPatients.length})
+                </div>
               <div style={{ overflow: 'auto' }}>
                 <table className="appointments-table" style={{ minWidth: 400 }}>
                   <thead>
@@ -181,7 +224,35 @@ function AdminDashboard() {
                 </table>
               </div>
             </div>
-          )}
+            )}
+            
+            {/* ── Active Doctors ── */}
+            {activeDoctors.length > 0 && (
+              <div className="ml-card ml-fade-up" style={{ padding: 0, overflow: 'hidden' }}>
+                <div style={{ padding: '1rem 1.25rem', borderBottom: '1px solid var(--border)', fontWeight: 700, fontSize: '0.95rem', color: 'var(--text)' }}>
+                  👨‍⚕️ Verified Doctors On Platform ({activeDoctors.length})
+                </div>
+                <div style={{ overflow: 'auto', maxHeight: '400px' }}>
+                  <table className="appointments-table" style={{ minWidth: 400 }}>
+                    <thead>
+                      <tr>
+                        <th>Doctor Name</th>
+                        <th>Status</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {activeDoctors.map(d => (
+                        <tr key={d.id}>
+                          <td><strong>{d.fullName}</strong></td>
+                          <td><span className="status-badge status-confirmed">Active</span></td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+          </div>
 
           {/* ── Doctor Signup Form ── */}
           {showForm && (

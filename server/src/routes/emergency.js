@@ -55,4 +55,25 @@ router.get('/active', async (req, res) => {
   }
 })
 
+// ─── POST /api/emergency/:id/resolve ─── (Admin feature to acknowledge/resolve SOS)
+router.post('/:id/resolve', async (req, res) => {
+  try {
+    if (req.user.role !== 'admin') {
+      return res.status(403).json({ message: 'Only admins can resolve emergencies.' })
+    }
+
+    const { id } = req.params
+
+    const emergency = await prisma.emergencyRequest.update({
+      where: { id },
+      data: { status: 'RESOLVED' }
+    })
+
+    return res.json({ message: 'Emergency marked as resolved', emergency })
+  } catch (error) {
+    logger.error('Resolve emergency error:', error)
+    return res.status(500).json({ message: error?.message || 'Internal server error' })
+  }
+})
+
 export default router

@@ -1,34 +1,20 @@
 import { Link } from 'react-router-dom'
 import './LandingPage.css'
 
-const FEATURES = [
-  { icon: '🤖', title: 'AI Symptom Checker', desc: 'Describe your symptoms and get instant guidance on which specialist to see, powered by Meta LLaMA 3.', color: '#9333ea' },
-  { icon: '📹', title: 'Telemedicine Calls', desc: 'HD video consultations with your doctor from anywhere in the world. Secure, private, real-time.', color: '#0057B7' },
-  { icon: '🗺️', title: 'Emergency SOS', desc: 'One-tap GPS-based ambulance dispatch. Your live location is sent to the nearest admin dispatch.', color: '#dc2626' },
-  { icon: '🩸', title: 'Blood Bank Network', desc: 'Find compatible blood donors near you on an interactive live map, even in emergencies.', color: '#e11d48' },
-  { icon: '📁', title: 'Digital Health Records', desc: 'X-rays, lab results, and clinical notes stored securely in the cloud, always accessible.', color: '#059669' },
-  { icon: '💬', title: 'Real-time Messaging', desc: 'Encrypted chat directly with your assigned doctor. Attach files and share vital information.', color: '#0EA5E9' },
-]
-
-const STATS = [
-  { value: '10K+', label: 'Patients Served' },
-  { value: '500+', label: 'Verified Doctors' },
-  { value: '99.9%', label: 'Uptime Guaranteed' },
-  { value: '24/7', label: 'Emergency Support' },
-]
-
 export default function LandingPage() {
   return (
     <div className="landing-page">
 
-      {/* ── Navbar ── */}
+      {/* ── Nav ── */}
       <nav className="landing-nav">
         <div className="landing-nav-inner">
           <div className="landing-logo">⚕️ MediLink</div>
           <div className="landing-nav-links">
-            <a href="#features">Features</a>
-            <a href="#stats">Why Us</a>
-            <Link to="/doctor" style={{ fontWeight: 600, display: 'flex', alignItems: 'center', gap: '4px' }}>👨‍⚕️ <span style={{ color: 'var(--primary)' }}>For Doctors</span></Link>
+            <a href="#directory">Directory</a>
+            <a href="#how-it-works">How It Works</a>
+            <Link to="/doctor" style={{ fontWeight: 600, display: 'flex', alignItems: 'center', gap: '6px', color: '#60A5FA' }}>
+              👨‍⚕️ For Doctors
+            </Link>
           </div>
           <div className="landing-nav-cta">
             <Link to="/login" className="landing-btn-ghost">Sign In</Link>
@@ -39,120 +25,161 @@ export default function LandingPage() {
 
       {/* ── Hero ── */}
       <section className="landing-hero">
-        <div className="landing-hero-blob blob-1" />
-        <div className="landing-hero-blob blob-2" />
-        <div className="landing-hero-blob blob-3" />
-
+        <div className="landing-hero-overlay" />
         <div className="landing-hero-content">
-          <span className="landing-badge">🚀 AI-Powered Healthcare Platform</span>
+          <span className="landing-badge">🚀 Next-Gen Medical Ecosystem</span>
           <h1 className="landing-hero-title">
             Healthcare That Comes<br />
             <span className="landing-gradient-text">To You</span>
           </h1>
           <p className="landing-hero-sub">
-            MediLink connects patients with verified doctors through telemedicine, AI diagnostics, emergency dispatch, and a complete digital health ecosystem — all completely free.
+            The central hub for Bangladesh's medical infrastructure. Book top-tier hospitals, consult via HD Telemedicine, run AI symptom checks, and hail emergency dispatches.
           </p>
           <div className="landing-hero-actions">
             <Link to="/signup" className="landing-cta-btn">
-              Start For Free
-              <span>→</span>
+              Create Patient Account <span>→</span>
             </Link>
-            <Link to="/blood-bank" className="landing-cta-ghost">
-              🩸 Find Blood Donors
+            <Link to="/discovery" className="landing-cta-ghost">
+              🔍 Browse Directory
             </Link>
-          </div>
-
-          <div className="landing-trust-bar">
-            <span>🔒 HIPAA-Inspired Security</span>
-            <span>•</span>
-            <span>⚡ Powered by Groq AI</span>
-            <span>•</span>
-            <span>🌍 OpenStreetMap Integration</span>
           </div>
         </div>
 
-        {/* Hero visual cards */}
-        <div className="landing-hero-visual">
-          <div className="landing-hero-card card-main">
-            <div className="hero-card-icon">🤖</div>
-            <div>
-              <p className="hero-card-title">AI Symptom Analysis</p>
-              <p className="hero-card-sub">Powered by LLaMA 3.1</p>
+        <div className="landing-hero-visuals">
+          <div className="hero-glass-card hc-1">
+            <div className="hc-icon">🤖</div>
+            <div className="hc-text">
+              <h4>Llama 3.1 AI</h4>
+              <p>Symptom Analysis Active</p>
             </div>
-            <span className="hero-card-badge live">LIVE</span>
           </div>
-          <div className="landing-hero-card card-2">
-            <div className="hero-card-icon">📹</div>
-            <div>
-              <p className="hero-card-title">Dr. Ahmed is online</p>
-              <p className="hero-card-sub">Video call ready</p>
+
+          <div className="hero-glass-card hc-2" style={{ flexDirection: 'column', textAlign: 'center', gap: '1.5rem' }}>
+            <div style={{ fontSize: '4rem' }}>👨‍⚕️</div>
+            <div className="hc-text">
+              <h4 style={{ fontSize: '1.4rem' }}>Dr. Rahim Is Online</h4>
+              <p style={{ fontSize: '1rem', color: '#34D399', fontWeight: 600 }}>📹 HD Telemedicine Ready</p>
             </div>
-            <span className="hero-card-badge online">●</span>
+            <Link to="/signup" className="landing-btn-primary" style={{ width: '100%' }}>Join Session</Link>
           </div>
-          <div className="landing-hero-card card-3">
-            <div className="hero-card-icon">🚨</div>
-            <div>
-              <p className="hero-card-title">SOS Dispatched</p>
-              <p className="hero-card-sub">Ambulance arriving in 4 min</p>
+
+          <div className="hero-glass-card hc-3">
+            <div className="hc-icon">🚨</div>
+            <div className="hc-text">
+              <h4>SOS Signal Sync</h4>
+              <p>Ambulance 3 mins away</p>
             </div>
           </div>
         </div>
       </section>
 
       {/* ── Stats ── */}
-      <section className="landing-stats" id="stats">
-        {STATS.map((s, i) => (
-          <div key={i} className="landing-stat">
-            <span className="landing-stat-value">{s.value}</span>
-            <span className="landing-stat-label">{s.label}</span>
+      <section className="landing-stats-wrapper">
+        <div className="landing-stats">
+          <div className="landing-stat">
+            <div className="landing-stat-value">50+</div>
+            <div className="landing-stat-label">Hospitals Linked</div>
           </div>
-        ))}
+          <div className="landing-stat">
+            <div className="landing-stat-value">12K</div>
+            <div className="landing-stat-label">Patients Served</div>
+          </div>
+          <div className="landing-stat">
+            <div className="landing-stat-value">24/7</div>
+            <div className="landing-stat-label">SOS Dispatch</div>
+          </div>
+          <div className="landing-stat">
+            <div className="landing-stat-value">99%</div>
+            <div className="landing-stat-label">System Uptime</div>
+          </div>
+        </div>
       </section>
 
-      {/* ── Features ── */}
-      <section className="landing-features" id="features">
-        <div className="landing-section-header">
-          <h2>Everything You Need in One Place</h2>
-          <p>A complete healthcare ecosystem designed for the modern patient.</p>
+      {/* ── Features Grid ── */}
+      <section className="landing-features" id="directory">
+        <div className="section-header">
+          <h2>An Entire Medical Infrastructure</h2>
+          <p>Everything you need to manage your health securely across the country.</p>
         </div>
-        <div className="landing-features-grid">
-          {FEATURES.map((f, i) => (
-            <div key={i} className="landing-feature-card" style={{ '--accent-color': f.color }}>
-              <div className="landing-feature-icon">{f.icon}</div>
-              <h3>{f.title}</h3>
-              <p>{f.desc}</p>
+        <div className="features-grid">
+          <div className="feature-card" style={{ '--accent-glow': 'rgba(96, 165, 250, 0.4)' }}>
+            <div className="feature-icon-wrap" style={{ color: '#60A5FA' }}>🔍</div>
+            <h3>Hospital Directory</h3>
+            <p>Compare local hospitals, browse their specific diagnostic tests and live operations pricing, and book directly.</p>
+          </div>
+          <div className="feature-card" style={{ '--accent-glow': 'rgba(167, 139, 250, 0.4)' }}>
+            <div className="feature-icon-wrap" style={{ color: '#A78BFA' }}>🤖</div>
+            <h3>AI Symptom AI</h3>
+            <p>Leverage the massive groq-accelerated Meta Llama engine to cross-reference symptoms and triage your condition quickly.</p>
+          </div>
+          <div className="feature-card" style={{ '--accent-glow': 'rgba(52, 211, 153, 0.4)' }}>
+            <div className="feature-icon-wrap" style={{ color: '#34D399' }}>📹</div>
+            <h3>Telemedicine Suite</h3>
+            <p>Connect with your physician natively in crisp, secure, WebRTC-powered video streams without leaving your browser.</p>
+          </div>
+          <div className="feature-card" style={{ '--accent-glow': 'rgba(239, 68, 68, 0.4)' }}>
+            <div className="feature-icon-wrap" style={{ color: '#EF4444' }}>🚨</div>
+            <h3>Live SOS Dispatch</h3>
+            <p>One tap sends your live geographic GPS coordinates to our central Admin dispatch center for immediate ambulance routing.</p>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Pipeline: How It Works ── */}
+      <section className="flow-section" id="how-it-works">
+        <div className="flow-container">
+          
+          <div className="flow-step">
+            <div className="flow-visual">📱</div>
+            <div className="flow-content">
+              <span className="flow-badge">Step 1 — Discovery</span>
+              <h3>Find The Perfect Care</h3>
+              <p>Skip the waiting rooms. Open the beautifully optimized Mobile Directory to search across leading hospitals like BIRDEM and Square Hospital. Compare prices for tests and surgeries instantly.</p>
+              <Link to="/discovery" className="landing-btn-ghost">Try The Directory</Link>
             </div>
-          ))}
+          </div>
+
+          <div className="flow-step">
+            <div className="flow-visual">📅</div>
+            <div className="flow-content">
+              <span className="flow-badge">Step 2 — Auto Booking</span>
+              <h3>Lock In Your Appointment</h3>
+              <p>Once you locate your needed Test or highly-reviewed Doctor, one tap automatically prepares your booking profile. No messy phone calls needed—the Admin handles everything on our secure cloud.</p>
+            </div>
+          </div>
+
+          <div className="flow-step">
+            <div className="flow-visual">🏥</div>
+            <div className="flow-content">
+              <span className="flow-badge">Step 3 — Complete Health Record</span>
+              <h3>A Unified Medical History</h3>
+              <p>After your consultation, doctors instantly push digital prescriptions, lab results, and clinical notes to your EHR (Electronic Health Record). Accessible forever.</p>
+            </div>
+          </div>
+
         </div>
       </section>
 
-      {/* ── CTA Banner ── */}
-      <section className="landing-cta-section">
-        <div className="landing-cta-inner">
-          <h2>Ready to Take Control of Your Health?</h2>
-          <p>Join thousands of patients who trust MediLink for their complete healthcare needs.</p>
-          <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap', marginTop: '2rem' }}>
-            <Link to="/signup" className="landing-cta-btn large">
-              Create Patient Account →
-            </Link>
-            <Link to="/doctor/signup" className="landing-cta-btn large" style={{ background: 'linear-gradient(135deg, #1E40AF, #0057B7)' }}>
-              Register as Doctor 👨‍⚕️
-            </Link>
-          </div>
-        </div>
+      {/* ── CTA ── */}
+      <section className="landing-cta-banner">
+        <h2>Ready to upgrade your healthcare?</h2>
+        <p>Join the MediLink network today and experience medical discovery handled the 21st-century way.</p>
+        <Link to="/signup" className="landing-cta-btn" style={{ padding: '1.25rem 3rem', fontSize: '1.25rem' }}>
+          Create Free Account
+        </Link>
       </section>
 
       {/* ── Footer ── */}
-      <footer className="landing-footer">
-        <div className="landing-footer-inner">
-          <div className="landing-logo" style={{ color: 'white' }}>⚕️ MediLink</div>
-          <p style={{ opacity: 0.6, fontSize: '0.85rem' }}>© 2026 MediLink. Built for patients, by design.</p>
-          <div className="landing-footer-links">
-            <Link to="/login">Patient Login</Link>
-            <Link to="/doctor">Doctor Portal</Link>
-            <Link to="/blood-bank">Blood Bank</Link>
+      <footer className="footer-main">
+        <div className="footer-inner">
+          <div className="landing-logo">⚕️ MediLink</div>
+          <div className="landing-nav-links">
+            <Link to="/admin">Admin Gateway</Link>
+            <a href="#">Privacy Policy</a>
+            <a href="#">Terms of Service</a>
           </div>
         </div>
+        <p className="footer-copy">© 2026 MediLink Bangladesh. All rights reserved. Built for scaling healthcare.</p>
       </footer>
 
     </div>
