@@ -46,30 +46,57 @@ export default function LandingPage() {
         </div>
 
         <div className="landing-hero-visuals">
-          <div className="hero-glass-card hc-1">
-            <div className="hc-icon">🤖</div>
-            <div className="hc-text">
-              <h4>Llama 3.1 AI</h4>
-              <p>Symptom Analysis Active</p>
+
+          {/* Primary card — full width, anchors the section */}
+          <div className="hv-card hv-card-primary">
+            <div className="hv-card-avatar">👨‍⚕️</div>
+            <div className="hv-card-body">
+              <div className="hv-live-dot"><span className="hv-pulse" />Live</div>
+              <h4>Dr. Rahim Is Online</h4>
+              <p>Cardiology • HD Telemedicine Ready</p>
+            </div>
+            <Link to="/signup" className="landing-btn-primary" style={{ marginTop: 'auto', whiteSpace: 'nowrap' }}>Join →</Link>
+          </div>
+
+          {/* Secondary row — two equal cards side by side */}
+          <div className="hv-row">
+            <div className="hv-card hv-card-secondary">
+              <div className="hv-card-icon" style={{ background: 'rgba(139,92,246,0.15)' }}>🤖</div>
+              <div className="hv-card-body">
+                <h4>Llama 3.1 AI</h4>
+                <p>Symptom checker active</p>
+              </div>
+              <span className="hv-badge" style={{ background: 'rgba(52,211,153,0.15)', color: '#34D399' }}>Online</span>
+            </div>
+
+            <div className="hv-card hv-card-secondary">
+              <div className="hv-card-icon" style={{ background: 'rgba(239,68,68,0.15)' }}>🚨</div>
+              <div className="hv-card-body">
+                <h4>SOS Dispatch</h4>
+                <p>Ambulance 3 mins away</p>
+              </div>
+              <span className="hv-badge" style={{ background: 'rgba(239,68,68,0.15)', color: '#F87171' }}>Active</span>
             </div>
           </div>
 
-          <div className="hero-glass-card hc-2" style={{ flexDirection: 'column', textAlign: 'center', gap: '1.5rem' }}>
-            <div style={{ fontSize: '4rem' }}>👨‍⚕️</div>
-            <div className="hc-text">
-              <h4 style={{ fontSize: '1.4rem' }}>Dr. Rahim Is Online</h4>
-              <p style={{ fontSize: '1rem', color: '#34D399', fontWeight: 600 }}>📹 HD Telemedicine Ready</p>
+          {/* Tertiary card — stats strip */}
+          <div className="hv-card hv-card-stats">
+            <div className="hv-stat">
+              <span className="hv-stat-val">50+</span>
+              <span className="hv-stat-lab">Hospitals</span>
             </div>
-            <Link to="/signup" className="landing-btn-primary" style={{ width: '100%' }}>Join Session</Link>
+            <div className="hv-stat-divider" />
+            <div className="hv-stat">
+              <span className="hv-stat-val">12K</span>
+              <span className="hv-stat-lab">Patients</span>
+            </div>
+            <div className="hv-stat-divider" />
+            <div className="hv-stat">
+              <span className="hv-stat-val">24/7</span>
+              <span className="hv-stat-lab">SOS</span>
+            </div>
           </div>
 
-          <div className="hero-glass-card hc-3">
-            <div className="hc-icon">🚨</div>
-            <div className="hc-text">
-              <h4>SOS Signal Sync</h4>
-              <p>Ambulance 3 mins away</p>
-            </div>
-          </div>
         </div>
       </section>
 
