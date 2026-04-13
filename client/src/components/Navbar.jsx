@@ -17,6 +17,7 @@ export function Navbar({ role = 'patient' }) {
         {/* Desktop links */}
         <nav className="ml-navbar-links">
           {role === 'patient' && (
+            <>
               <Link to="/dashboard" className="ml-navbar-link">Home</Link>
               <Link to="/discovery" className="ml-navbar-link">Directory</Link>
               <Link to="/appointments" className="ml-navbar-link">Book</Link>
