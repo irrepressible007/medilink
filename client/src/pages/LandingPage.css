@@ -471,8 +471,8 @@
   content: ''; position: absolute; inset: 0;
   background: radial-gradient(circle at center, rgba(255,255,255,0.1) 0%, transparent 60%);
 }
-.landing-cta-banner h2 { font-size: clamp(2.5rem, 5vw, 4rem); font-weight: 900; margin-bottom: 1.5rem; position: relative; z-index: 1; }
-.landing-cta-banner p { font-size: 1.2rem; color: rgba(255,255,255,0.7); max-width: 600px; margin: 0 auto 3rem auto; position: relative; z-index: 1; }
+.landing-cta-banner h2 { font-size: clamp(2.5rem, 5vw, 4rem); font-weight: 900; margin-bottom: 1.5rem; position: relative; z-index: 2; color: #ffffff; }
+.landing-cta-banner p { font-size: 1.2rem; color: rgba(255,255,255,0.75); max-width: 600px; margin: 0 auto 3rem auto; position: relative; z-index: 2; }
 
 .footer-main { background: #010308; padding: 4rem 1.5rem 2rem; border-top: 1px solid rgba(255,255,255,0.05); }
 .footer-inner { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 2rem; margin-bottom: 2rem; }
